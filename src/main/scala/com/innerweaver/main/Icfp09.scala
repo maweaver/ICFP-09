@@ -1,6 +1,7 @@
 package com.innerweaver.main
 
 import vm.VmReader
+import util.Bits
 
 object Icfp09 
 extends Application {

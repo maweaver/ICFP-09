@@ -50,8 +50,10 @@ extends Iterator[Frame] {
        address += 1
        frame
      } else {
-       val data = (if(address % 2 == 0) buffer.slice(0, 8) else buffer.slice(4, 12)).force
-       val op =   (if(address % 2 == 0) buffer.slice(8, 12) else buffer.slice(0, 4)).force
+       val data = (if(address % 2 == 0) buffer.slice(0, 8 ) else buffer.slice(4, 12)).force
+       val op   = (if(address % 2 == 0) buffer.slice(8, 12) else buffer.slice(0,  4)).force
+       
+       
        
        println(Integer.toHexString(address) + " = " + op.mkString("[", ", ", "]") + ", " + data.mkString("[", ", ", "]"))
        val frame = blankFrame()
