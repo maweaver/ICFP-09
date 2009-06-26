@@ -1,6 +1,7 @@
 package com.innerweaver.vm
 
 import java.io.InputStream
+import util.Bits
 import Vm.Address
 import Vm.Data
 
@@ -50,16 +51,57 @@ extends Iterator[Frame] {
        address += 1
        frame
      } else {
-       val data = (if(address % 2 == 0) buffer.slice(0, 8 ) else buffer.slice(4, 12)).force
-       val op   = (if(address % 2 == 0) buffer.slice(8, 12) else buffer.slice(0,  4)).force
+       val data = (if(address % 2 == 0) { buffer.take(8) } else { buffer.drop(4) }).force
+       val opData = Bits.byteArrayToInt((if(address % 2 == 0) { buffer.drop(8) } else { buffer.take(4) }).force.reverse)
        
+       val byteCode = Bits.range(opData, 28, 31)
        
+       val opCode = if(byteCode == 0) sCode(opData) else dCode(opData)
        
-       println(Integer.toHexString(address) + " = " + op.mkString("[", ", ", "]") + ", " + data.mkString("[", ", ", "]"))
+       println(opCode + ", " + data.mkString("[", ", ", "]"))
        val frame = blankFrame()
        address += 1
        frame
      }
+  }
+  
+  /**
+   * Parses some data as an S-Type OpCode
+   */
+  protected def sCode(opData: Int): Opcode = {
+    val op = Bits.range(opData, 27, 24)
+    val imm = Bits.range(opData, 23, 14)
+    val r1 = Bits.range(opData, 13, 0)
+    
+//    println("SCode found, op = " + Integer.toHexString(op) + ", imm = " + Integer.toHexString(imm) + ", r1 = " + Integer.toHexString(r1))
+    
+    op match {
+      case Opcode.SCode.Noop => Noop(address, r1)
+      case Opcode.SCode.Cmpz => Cmpz(address, imm, r1)
+      case Opcode.SCode.Sqrt => Sqrt(address, r1)
+      case Opcode.SCode.Copy => Copy(address, r1)
+      case Opcode.SCode.Input => Input(address, r1)
+    }
+  }
+  
+  /**
+   * Parses some data as a D-Type OpCode
+   */
+  protected def dCode(opData: Int): Opcode = {
+    val op = Bits.range(opData, 31, 28)
+    val r1 = Bits.range(opData, 27, 14)
+    val r2 = Bits.range(opData, 13, 0)
+    
+//    println("SCode found, op = " + Integer.toHexString(op) + ", r1 = " + Integer.toHexString(r1) + ", r2 = " + Integer.toHexString(r2))
+    
+    op match {
+      case Opcode.DCode.Add => Add(address, r1, r2)
+      case Opcode.DCode.Sub => Sub(address, r1, r2)
+      case Opcode.DCode.Mult => Mult(address, r1, r2)
+      case Opcode.DCode.Div => Div(address, r1, r2)
+      case Opcode.DCode.Output => Output(address, r1, r2)
+      case Opcode.DCode.Phi => Phi(address, r1, r2)
+    }
   }
   
   /**

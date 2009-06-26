@@ -22,7 +22,19 @@ object Bits {
    * 16 bits and last 16 bits are swapped.
    */
   def littleEndianToBig(value: Int): Int = 
+    ((value & 0xFF) << 24) |
+    ((value & 0xFF00) << 8) |
+    ((value & 0xFF0000) >> 8) |
+    ((value & 0xFF000000) >> 24)
+/*    println("I can't believe this...")
+    println(Integer.toHexString(value & 0x0000FFFF))
+    println(Integer.toHexString((value & 0x0000FFFF) << 16))
+    println(Integer.toHexString(value & 0xFFFF0000))
+    println(Integer.toHexString((value & 0xFFFF0000) >>> 16))
+    println(Integer.toHexString(((value & 0x0000FFFF) << 16) | ((value & 0xFFFF0000) >>> 16)))
+    
     ((value & 0x0000FFFF) << 16) | ((value & 0xFFFF0000) >>> 16)
+  }*/
     
   /**
    * Returns a range of bits from a larger number, based on the representation
@@ -33,5 +45,5 @@ object Bits {
    * shifted down so that they themselves formed a new integer.</p>
    */
   def range(value: Int, start: Int, end: Int): Int =
-    (value & (Math.pow(2.0d, start.toDouble + 1.0d).toInt - 1)) >>> (end - 1)
+    (value & (Math.pow(2.0d, start.toDouble + 1.0d).toInt - 1)) >>> end
 }

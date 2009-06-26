@@ -9,14 +9,43 @@ class Opcode(code: Int, rd: Address)  {
 
   override def toString(): String =
     "[" + code + "]" +
-    "(" + getClass.getName + ")"
+    "(" + getClass.getName.substring(19) + ")" +
     "@" + Integer.toHexString(rd)
+}
+
+/**
+ * Opcode constants
+ */
+object Opcode {
+  
+  /**
+   * Opcode value for D-Type codes
+   */
+  object DCode {
+    
+    val Add = 0x1
+    val Sub = 0x2
+    val Mult = 0x3
+    val Div = 0x4
+    val Output = 0x5
+    val Phi = 0x6
+    
+  }
+  
+  object SCode {
+    
+    val Noop = 0x0
+    val Cmpz = 0x1
+    val Sqrt = 0x2
+    val Copy = 0x3
+    val Input = 0x4
+  }
 }
 
 /**
  * D-Codes take Double parameters
  */
-class DCode(code: Int, rd: Address, r1: Address, r2: Address)
+class DCode(val code: Int, rd: Address, r1: Address, r2: Address)
 extends Opcode(code, rd) {
  
   override def toString(): String =
@@ -25,19 +54,10 @@ extends Opcode(code, rd) {
     ", " + Integer.toHexString(r2)
 }
 
-object DCode {
- 
-  /**
-   * List of all D-Type opcodes used when translating to/from binary
-   */
-  def all = Add :: Sub :: Mult :: Div :: Output :: Phi :: Nil
-
-}
-
 /**
  * S-Codes take a Single parameter
  */
-class SCode(code: Int, rd: Address, r1: Address)
+class SCode(val code: Int, rd: Address, r1: Address)
 extends Opcode(code, rd) {
  
   override def toString(): String =
@@ -45,109 +65,113 @@ extends Opcode(code, rd) {
     ", " + Integer.toHexString(r1)
 }
 
-object SCode {
-  
-  /**
-   * List of all S-Type opcodes used when translating to/from binary
-   */
-  def all = Noop :: Cmpz :: Sqrt :: Copy :: Input :: Nil
-  
-}
-
 /**
  * rd < - mem[r1] + mem[r2]
  */
 case class Add(rd: Address, r1: Address, r2: Address)
-extends DCode(0x1, rd, r1, r2)
+extends DCode(Opcode.DCode.Add, rd, r1, r2)
 
 /**
  * rd < - mem[r1] - mem[r2]
  */
 case class Sub(rd: Address, r1: Address, r2: Address)
-extends DCode(0x2, rd, r1, r2)
+extends DCode(Opcode.DCode.Sub, rd, r1, r2)
 
 /**
  * rd < - mem[r1] * mem[r2]
  */
 case class Mult(rd: Address, r1: Address, r2: Address)
-extends DCode(0x3, rd, r1, r2)
+extends DCode(Opcode.DCode.Mult, rd, r1, r2)
 
 
 /**
  * rd < - 0.0 if mem[r2] == 0.0 else mem[r1] / mem[r2]
  */
 case class Div(rd: Address, r1: Address, r2: Address)
-extends DCode(0x4, rd, r1, r2)
+extends DCode(Opcode.DCode.Div, rd, r1, r2)
 
 /**
  * port[r1] < - mem[r2]
  */
 case class Output(rd: Address, r1: Address, r2: Address)
-extends DCode(0x5, rd, r1, r2)
+extends DCode(Opcode.DCode.Output, rd, r1, r2)
 
-/**p
+/**
  * rd < - mem[r1] if status == 1, else mem[r2]
  */
 case class Phi(rd: Address, r1: Address, r2: Address)
-extends DCode(0x6, rd, r1, r2)
+extends DCode(Opcode.DCode.Phi, rd, r1, r2)
 
 
 /**
  * rd < - mem[rd]
  */
 case class Noop(rd: Address, r1: Address)
-extends SCode(0x0, rd, r1)
+extends SCode(Opcode.SCode.Noop, rd, r1)
 
 
 /**
  * status < - mem[r1] op 0.0
  */
-case class Cmpz(rd: Address, op: ComparisonOperation, r1: Address)
-extends SCode(0x1, rd, r1) {
+case class Cmpz(rd: Address, imm: Int, r1: Address)
+extends SCode(Opcode.SCode.Cmpz, rd, r1) {
  
+  def op: ComparisonOperator = imm match {
+    case ComparisonOperator.Ltz => Ltz()
+    case ComparisonOperator.Lez => Lez()
+    case ComparisonOperator.Eqz => Eqz()
+    case ComparisonOperator.Gez => Gez()
+    case ComparisonOperator.Gtz => Gtz()
+  }
+  
   override def toString(): String =
    super.toString() +
-   " " + op.toString() + " 0.0"
+   " " + imm.toString() + " 0.0"
   
 }
 
 /**
  * status < - abs(sqrt(mem[r1]))
  */
-case class Sqrt(code: Int, rd: Address, r1: Address)
-extends SCode(0x2, rd, r1)
+case class Sqrt(rd: Address, r1: Address)
+extends SCode(Opcode.SCode.Sqrt, rd, r1)
 
 
 /**
  * rd < - mem[r1]
  */
-case class Copy(code: int, rd: Address, r1: Address)
-extends SCode(0x3, rd, r1)
+case class Copy(rd: Address, r1: Address)
+extends SCode(Opcode.SCode.Copy, rd, r1)
 
 /**
  * rd < - port[r1]
  */
 case class Input(rd: Address, r1: Address)
-extends SCode(0x4, rd, r1)
+extends SCode(Opcode.SCode.Input, rd, r1)
 
 /**
  * Comparison operators used for the cmpz instruction
  */
-class ComparisonOperation(code: Int)
+class ComparisonOperator(code: Int)
 
+/**
+ * Constants for comparison operators
+ */
 object ComparisonOperator {
  
-  /**
-   * List of all comparison operations, used for translating to/from binary
-   */
-  val all = Ltz :: Lez :: Eqz :: Gez :: Gtz :: Nil
+  val Ltz = 0x0
+  val Lez = 0x1
+  val Eqz = 0x2
+  val Gez = 0x3
+  val Gtz = 0x4
+  
 }
 
 /**
  * Less-than zero
  */
 case class Ltz
-extends ComparisonOperation(0x0) {
+extends ComparisonOperator(ComparisonOperator.Ltz) {
  
   override def toString(): String = "<"
 }
@@ -156,7 +180,7 @@ extends ComparisonOperation(0x0) {
  * Less-than-or-equal-to zero
  */
 case class Lez
-extends ComparisonOperation(0x1) {
+extends ComparisonOperator(ComparisonOperator.Lez) {
  
   override def toString(): String = "<="
 }
@@ -165,7 +189,7 @@ extends ComparisonOperation(0x1) {
  * Equal to zero
  */
 case class Eqz
-extends ComparisonOperation(0x2) {
+extends ComparisonOperator(ComparisonOperator.Eqz) {
  
   override def toString(): String = "="
 }
@@ -174,7 +198,7 @@ extends ComparisonOperation(0x2) {
  * Greater-than-or-equal-to zero
  */
 case class Gez
-extends ComparisonOperation(0x3) {
+extends ComparisonOperator(ComparisonOperator.Gez) {
  
   override def toString(): String = ">="
 }
@@ -183,7 +207,7 @@ extends ComparisonOperation(0x3) {
  * Greater than zero
  */
 case class Gtz
-extends ComparisonOperation(0x4) {
+extends ComparisonOperator(ComparisonOperator.Gtz) {
  
   override def toString(): String = ">"
 }
