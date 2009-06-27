@@ -139,7 +139,6 @@ extends DCode(Opcode.DCode.Phi, rd, r1, r2) {
   }
 }
 
-
 /**
  * rd < - mem[rd]
  */
@@ -147,10 +146,9 @@ case class Noop(rd: Address, r1: Address)
 extends SCode(Opcode.SCode.Noop, rd, r1) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> vm.data.getOrElse(r1, 0.0d)
+    vm.data += rd -> vm.data.getOrElse(rd, 0.0d)
   }
 }
-
 
 /**
  * status < - mem[r1] op 0.0

@@ -16,11 +16,18 @@ object Problem {
  * Abstract class for problems
  */
 abstract class Problem {
+
+  private var _vm: Option[Vm] = None
+  
+  /**
+   * Retrieve the current vm
+   */
+  def vm: Vm = _vm.get
   
   /**
    * Called when the current VM is set
    */
-  def setVm(value: Vm)
+  def vm_=(value: Vm) { _vm = Some(value) }
 
   /**
    * The name of the problem
@@ -45,7 +52,7 @@ abstract class Problem {
   /**
    * Resets the VM to work the current problem
    */
-  def reset(vm: Vm) {
+  def reset() {
      VmReader.populateVm(vm, Thread.currentThread.getContextClassLoader.getResourceAsStream("binaries/" + binary + ".obf"))
   }
   

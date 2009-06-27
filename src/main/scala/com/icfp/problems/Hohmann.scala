@@ -12,12 +12,6 @@ extends Problem {
   /**
    * @inheritDoc
    */
-  override def setVm(value: Vm) {
-  }
-
-  /**
-   * @inheritDoc
-   */
   override def name = "Hohmann"
   
   /**

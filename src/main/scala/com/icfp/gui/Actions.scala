@@ -29,5 +29,4 @@ extends Action("Finish Step") {
   
   override def apply(): Unit = vm.finishStep()
   
-}
- 
+} 

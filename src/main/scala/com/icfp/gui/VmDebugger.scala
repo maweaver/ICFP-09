@@ -2,8 +2,10 @@ package com.icfp.gui
 
 import javax.swing.JToolBar
 import javax.swing.JToolBar.Separator
-import scala.swing.{Component, ScrollPane, TabbedPane}
+import scala.swing.{Component, FlowPanel, ScrollPane, TabbedPane}
 import scala.swing.TabbedPane.Page
+import scala.swing.event.SelectionChanged
+import problems.Problem
 import vm.Vm
 
 /**
@@ -11,13 +13,32 @@ import vm.Vm
  */
 class VmDebugger(vm: Vm)
 extends MigPanel("", "[100%]", "[100%]") {
- 
+  
+  // Initialize each problem's vms here... hackish, but oh well
+  Problem.all.foreach { p => p.vm = vm }
+
+  val problemList = new ProblemList(vm) {
+    reactions += {
+      case SelectionChanged(_) => resetConfigurations()
+    }
+  }
+  
+  /**
+   * Panel used to hold the list of valid configurations.  Used because a new
+   * control has to be created each time the problem changes, since the
+   * combobox values are immutable
+   */
+  val configurationHolder = new FlowPanel
+  
   val toolbar = new JToolBar()
   
   toolbar.add(new NextInstructionAction(vm).peer)
   toolbar.add(new FinishStepAction(vm).peer)
   toolbar.add(new JToolBar.Separator())
-  toolbar.add(new ProblemList(vm).peer)
+  toolbar.add(new FlowPanel {
+    contents += problemList
+    contents += configurationHolder
+  }.peer)
 
   add(Component.wrap(toolbar), "dock north")
 
@@ -41,5 +62,21 @@ extends MigPanel("", "[100%]", "[100%]") {
   }, "dock west, width 650")
   
   add(new ScrollPane(new CommandList(vm)), "dock south, height 300")
+  
+  resetConfigurations()
+  
+  /**
+   * Retrieves the current problem
+   */
+  def currentProblem: Problem = problemList.selection.item
+  
+  /**
+   * Creates a new list of configurations based on the currently-selected
+   * problem.
+   */
+  def resetConfigurations() {
+    configurationHolder.contents.clear
+    configurationHolder.contents += new ConfigurationList(vm, currentProblem)
+  }
   
 }

@@ -9,5 +9,5 @@ import vm.Vm
  */
 class ProblemList(vm: Vm)
 extends ComboBox[Problem](Problem.all) {
-  
+
 }
