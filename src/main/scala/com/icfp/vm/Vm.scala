@@ -65,10 +65,10 @@ extends Publisher{
   val inputPorts = Map[Vm.Address, Vm.Data]()
   
   /**
-   * The number of input ports.  This is the highest address where an input
-   * port has been set.
+   * The number of input ports.  This is hardcoded at 0x3E81 for now, since
+   * port number 0x3E80 is the highest address used
    */
-  def numInputPorts = (inputPorts.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
+  def numInputPorts = 0x3E81
   
   /**
    * Ports by which the data interacts with the outside world

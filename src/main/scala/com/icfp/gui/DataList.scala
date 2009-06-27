@@ -26,7 +26,7 @@ extends Table {
       case DataColumn => "Data"
     }
     
-    override def getRowCount(): Int = dataMap.keys.foldLeft(0) { (a, b) => Math.max(a, b) }
+    override def getRowCount(): Int = maxValue
     
     override def getColumnCount(): Int = 2
     
@@ -34,6 +34,17 @@ extends Table {
       if(col == AddressColumn) return "0x" + Integer.toHexString(row)
       if(col == DataColumn) return dataMap.getOrElse(row, 0.0d).toString()
       return ""
+    }
+    
+    override def isCellEditable(row: Int, col: Int): Boolean = col match {
+      case AddressColumn => false
+      case DataColumn => true
+    }
+    
+    override def setValueAt(value: Object, row: Int, col: int) {
+      try {
+        dataMap += row -> new java.lang.Double(value.toString()).asInstanceOf[Vm.Data]
+      } catch { case _ => }
     }
     
   }
