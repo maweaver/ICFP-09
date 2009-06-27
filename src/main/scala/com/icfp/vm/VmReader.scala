@@ -17,6 +17,8 @@ object VmReader {
       vm.data += frame.address -> frame.data
       vm.instructions += frame.address -> frame.opcode
     }
+    
+    vm.publish(VmInitialized(vm))
   }
   
 }

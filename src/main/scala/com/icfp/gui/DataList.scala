@@ -9,6 +9,8 @@ abstract class DataList
 extends Table {
   
   def dataMap: Map[Vm.Address, Vm.Data]
+  
+  def maxValue: Vm.Address
 
   model = new AbstractTableModel {
     

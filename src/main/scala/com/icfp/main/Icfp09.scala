@@ -1,5 +1,7 @@
 package com.icfp.main
 
+import com.jgoodies.looks.plastic.PlasticXPLookAndFeel
+import javax.swing.UIManager
 import scala.swing.{MainFrame, SimpleGUIApplication}
 import gui.VmDebugger
 import vm.{Vm, VmReader}
@@ -10,6 +12,8 @@ extends SimpleGUIApplication {
 
   val vm = new Vm()
   VmReader.populateVm(vm, Thread.currentThread.getContextClassLoader.getResourceAsStream("binaries/bin1.obf"))
+  
+  UIManager.setLookAndFeel(new PlasticXPLookAndFeel)
 
   def top = new MainFrame {
     

@@ -1,12 +1,43 @@
 package com.icfp.gui
 
+import java.awt.{Color, Point, Rectangle}
+import javax.swing.JViewport
 import javax.swing.table.AbstractTableModel
 
 import scala.swing.Table
-import vm.{Cmpz, DCode, SCode, Vm}
+import vm.{Cmpz, DCode, SCode, Vm, InstructionExecuted, VmInitialized}
 
 class CommandList(vm: Vm)
 extends Table {
+  
+  selectionBackground = Color.YELLOW
+  
+  def selectCurrentAddress() {
+    selection.rows.clear()
+    if(vm.currentAddress < model.getRowCount) {
+      selection.rows += vm.currentAddress
+      scrollToVisible(vm.currentAddress)
+    }
+  }
+  
+  vm.reactions += { 
+    case InstructionExecuted(_) => selectCurrentAddress()
+  }
+    
+  vm.reactions += {
+    case VmInitialized(_) => selectCurrentAddress()
+  }
+  
+  selectCurrentAddress()
+  
+  
+  def scrollToVisible(rowIndex: Int) {
+    val viewport = peer.getParent.asInstanceOf[JViewport]
+    val rect = peer.getCellRect(rowIndex, 0, true)
+    val pt = viewport.getViewPosition
+    rect.setLocation(rect.x-pt.x, rect.y-pt.y)
+    viewport.scrollRectToVisible(rect)
+  }
   
   model = new AbstractTableModel {
     
