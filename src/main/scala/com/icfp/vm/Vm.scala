@@ -32,6 +32,12 @@ extends Event
 case class VmInitialized(vm: Vm)
 extends Event
 
+/**
+ * Event dispatched when a step is complete
+ */
+case class StepFinished(vm: Vm)
+extends Event
+
 class Vm 
 extends Publisher{
   
@@ -125,5 +131,7 @@ extends Publisher{
       nextInstruction()
       
     currentAddress = 0
+    currentStep += 1
+    publish(StepFinished(this))
   }
 }

@@ -45,3 +45,19 @@ extends Action("Reset") {
   }
   
 } 
+
+/**
+ * Action used to run the current problem
+ */
+class RunAction(vm: Vm, guiState: GuiState)
+extends Action("Run") {
+  
+  icon = new ImageIcon(Thread.currentThread.getContextClassLoader.getResource("img/go.png"))
+  toolTip = "Runs the current problem until the target step is reached"
+  
+  override def apply() {
+    while(vm.currentStep < guiState.targetStep)
+      vm.finishStep()
+  }
+  
+} 

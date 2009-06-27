@@ -2,7 +2,7 @@ package com.icfp.gui
 
 import javax.swing.JToolBar
 import javax.swing.JToolBar.Separator
-import scala.swing.{Component, FlowPanel, ScrollPane, TabbedPane}
+import scala.swing.{Component, FlowPanel, Label, ScrollPane, TabbedPane}
 import scala.swing.TabbedPane.Page
 import scala.swing.event.SelectionChanged
 import problems.Problem
@@ -44,7 +44,13 @@ extends MigPanel("", "[100%]", "[100%]") {
     contents += problemList
     contents += configurationHolder
   }.peer)
-
+  
+  toolbar.add(new FlowPanel {
+    contents += new Label("Target Step:")
+    contents += new TargetStepInput(vm, guiState)
+  }.peer)
+  toolbar.add(new RunAction(vm, guiState).peer)
+  
   add(Component.wrap(toolbar), "dock north")
 
   add(new TabbedPane {

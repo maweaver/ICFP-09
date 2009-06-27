@@ -16,7 +16,7 @@ extends Table {
     selection.rows.clear()
     if(vm.currentAddress < model.getRowCount) {
       selection.rows += vm.currentAddress
-      scrollToVisible(vm.currentAddress)
+      //scrollToVisible(vm.currentAddress)
     }
   }
   
