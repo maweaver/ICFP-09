@@ -16,3 +16,18 @@ extends Action("Next Instruction") {
   override def apply(): Unit = vm.nextInstruction()
   
 }
+
+/**
+ * Action used to execute instructions sequentially until the current step is 
+ * finished.
+ */
+class FinishStepAction(vm: Vm)
+extends Action("Finish Step") {
+  
+  icon = new ImageIcon(Thread.currentThread.getContextClassLoader.getResource("img/next-step.png"))
+  toolTip = "Executes instructions until all have been executed"
+  
+  override def apply(): Unit = vm.finishStep()
+  
+}
+ 

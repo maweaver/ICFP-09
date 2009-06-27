@@ -14,6 +14,7 @@ extends MigPanel("", "[100%]", "[100%]") {
   val toolbar = new JToolBar()
   
   toolbar.add(new NextInstructionAction(vm).peer)
+  toolbar.add(new FinishStepAction(vm).peer)
 
   add(Component.wrap(toolbar), "dock north")
 

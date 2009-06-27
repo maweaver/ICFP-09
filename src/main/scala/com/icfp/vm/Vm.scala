@@ -45,7 +45,7 @@ extends Publisher{
    * The number of instructions.  This is the highest address where an 
    * instruction has been set.
    */
-  def numInstructions = instructions.keys.foldLeft(0) { (a, b) => Math.max(a, b) }
+  def numInstructions = (instructions.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
   
   /**
    * The data space.  This space is stored as a map, rather than a list,
@@ -57,7 +57,7 @@ extends Publisher{
    * The number of data elements.  This is the highest address where data
    * has been set.
    */
-  def numData = data.keys.foldLeft(0) { (a, b) => Math.max(a, b) }
+  def numData = (data.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
   
   /**
    * Ports that provide data to the VM
@@ -68,7 +68,7 @@ extends Publisher{
    * The number of input ports.  This is the highest address where an input
    * port has been set.
    */
-  def numInputPorts = inputPorts.keys.foldLeft(0) { (a, b) => Math.max(a, b) }
+  def numInputPorts = (inputPorts.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
   
   /**
    * Ports by which the data interacts with the outside world
@@ -79,7 +79,7 @@ extends Publisher{
    * The number of output ports.  This is the highest address where an 
    * output port's value has been set.
    */
-  def numOutputPorts = outputPorts.keys.foldLeft(0) { (a, b) => Math.max(a, b) }
+  def numOutputPorts = (outputPorts.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
   
   /**
    * Status flag.
@@ -105,5 +105,15 @@ extends Publisher{
     instruction.execute(this)
     currentAddress += 1
     publish(InstructionExecuted(this))
+  }
+  
+  /**
+   * Execute until the end of the step is reached
+   */
+  def finishStep() {
+    while(currentAddress < numInstructions)
+      nextInstruction()
+      
+    currentAddress = 0
   }
 }
