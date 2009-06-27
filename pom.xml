@@ -7,7 +7,6 @@
   <inceptionYear>2009</inceptionYear>
   <properties>
     <scala.version>2.7.5</scala.version>
-    <batik.version>1.6-1</batik.version>
   </properties>
 
   <repositories>
@@ -70,7 +69,7 @@
           <launchers>
             <launcher>
               <id>icfp09</id>
-              <mainClass>com.innerweaver.main.Icfp09</mainClass>
+              <mainClass>com.icfp.main.Icfp09</mainClass>
 			  <jvmArgs>
 			    <jvmArg>-Xms256m</jvmArg>
 			    <jvmArg>-Xmx5000m</jvmArg>

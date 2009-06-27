@@ -1,9 +1,25 @@
-package com.innerweaver.vm
+package com.icfp.vm
 
 import java.io.InputStream
 import util.Bits
 import Vm.Address
 import Vm.Data
+
+object VmReader {
+ 
+  /**
+   * Reads binary data from an input stream and uses it to populate the given
+   * VM.
+   */
+  def populateVm(vm: Vm, input: InputStream) {
+    val reader = new VmReader(input)
+    for(frame <- reader) {
+      vm.data += frame.address -> frame.data
+      vm.instructions += frame.address -> frame.opcode
+    }
+  }
+  
+}
 
 /**
  * This class reads from binary files following the Orbital Executable Format.  
@@ -38,31 +54,36 @@ extends Iterator[Frame] {
     if(eof)
       return blankFrame
       
-     // Each frame consists of a 32-bit opcode and 64-bit data value, for a
-     // total of 96-bits, or 12 bytes.
-     val frameSize = 12
+    // Each frame consists of a 32-bit opcode and 64-bit data value, for a
+    // total of 96-bits, or 12 bytes.
+    val frameSize = 12
      
-     val buffer = new Array[Byte](frameSize)
-     val bytesRead = input.read(buffer, 0, frameSize)
+    val buffer = new Array[Byte](frameSize)
+    val bytesRead = input.read(buffer, 0, frameSize)
      
-     if(bytesRead != frameSize) {
-       eof = true
-       val frame = blankFrame()
-       address += 1
-       frame
-     } else {
-       val data = (if(address % 2 == 0) { buffer.take(8) } else { buffer.drop(4) }).force
-       val opData = Bits.byteArrayToInt((if(address % 2 == 0) { buffer.drop(8) } else { buffer.take(4) }).force.reverse)
+    if(bytesRead != frameSize) {
+      eof = true
+      val frame = blankFrame()
+      address += 1
+      frame
+    } else {
+      print("Raw frame data: ")
+      for(byte <- buffer)
+        print(Integer.toHexString(byte.toInt & 0xFF) + " ")
+      println()
        
-       val byteCode = Bits.range(opData, 28, 31)
+      val data = java.lang.Double.longBitsToDouble(Bits.byteArrayToLong((if(address % 2 == 0) { buffer.take(8) } else { buffer.drop(4) }).force.reverse))
+      val opData = Bits.byteArrayToLong((if(address % 2 == 0) { buffer.drop(8) } else { buffer.take(4) }).force.reverse).toInt
        
-       val opCode = if(byteCode == 0) sCode(opData) else dCode(opData)
+      val byteCode = Bits.range(opData, 28, 31)
        
-       println(opCode + ", " + data.mkString("[", ", ", "]"))
-       val frame = blankFrame()
-       address += 1
-       frame
-     }
+      val opCode = if(byteCode == 0) sCode(opData) else dCode(opData)
+       
+      println(opCode + ", " + data)
+      val frame = blankFrame()
+      address += 1
+      frame
+    }
   }
   
   /**
@@ -70,7 +91,7 @@ extends Iterator[Frame] {
    */
   protected def sCode(opData: Int): Opcode = {
     val op = Bits.range(opData, 27, 24)
-    val imm = Bits.range(opData, 23, 14)
+    val imm = Bits.range(opData, 23, 21)
     val r1 = Bits.range(opData, 13, 0)
     
 //    println("SCode found, op = " + Integer.toHexString(op) + ", imm = " + Integer.toHexString(imm) + ", r1 = " + Integer.toHexString(r1))

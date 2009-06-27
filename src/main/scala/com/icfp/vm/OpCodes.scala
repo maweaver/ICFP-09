@@ -1,4 +1,4 @@
-package com.innerweaver.vm
+package com.icfp.vm
 
 import Vm.Address
 
@@ -6,10 +6,12 @@ import Vm.Address
  * Base class for the Orbital VM opcodes
  */
 class Opcode(code: Int, rd: Address)  {
+  
+  def opcode: String = getClass.getName.substring("com.icfp.vm".length + 1)
 
   override def toString(): String =
     "[" + code + "]" +
-    "(" + getClass.getName.substring(19) + ")" +
+    "(" + opcode + ")" +
     "@" + Integer.toHexString(rd)
 }
 
@@ -45,24 +47,24 @@ object Opcode {
 /**
  * D-Codes take Double parameters
  */
-class DCode(val code: Int, rd: Address, r1: Address, r2: Address)
-extends Opcode(code, rd) {
+class DCode(val code0: Int, val rd0: Address, val r10: Address, val r20: Address)
+extends Opcode(code0, rd0) {
  
   override def toString(): String =
     super.toString() + 
-    ", " + Integer.toHexString(r1) +
-    ", " + Integer.toHexString(r2)
+    ", " + Integer.toHexString(r10) +
+    ", " + Integer.toHexString(r20)
 }
 
 /**
  * S-Codes take a Single parameter
  */
-class SCode(val code: Int, rd: Address, r1: Address)
-extends Opcode(code, rd) {
+class SCode(val code0: Int, val rd0: Address, val r10: Address)
+extends Opcode(code0, rd0) {
  
   override def toString(): String =
     super.toString() +
-    ", " + Integer.toHexString(r1)
+    ", " + Integer.toHexString(r10)
 }
 
 /**
