@@ -1,6 +1,7 @@
 package com.icfp.gui
 
 import javax.swing.JToolBar
+import javax.swing.JToolBar.Separator
 import scala.swing.{Component, ScrollPane, TabbedPane}
 import scala.swing.TabbedPane.Page
 import vm.Vm
@@ -15,6 +16,8 @@ extends MigPanel("", "[100%]", "[100%]") {
   
   toolbar.add(new NextInstructionAction(vm).peer)
   toolbar.add(new FinishStepAction(vm).peer)
+  toolbar.add(new JToolBar.Separator())
+  toolbar.add(new ProblemList(vm).peer)
 
   add(Component.wrap(toolbar), "dock north")
 

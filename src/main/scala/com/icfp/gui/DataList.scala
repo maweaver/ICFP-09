@@ -3,7 +3,7 @@ package com.icfp.gui
 import javax.swing.table.AbstractTableModel
 import scala.collection.mutable.Map
 import scala.swing.Table
-import vm.{Vm, InstructionExecuted}
+import vm.{Vm, InstructionExecuted, VmInitialized}
 
 abstract class DataList(vm: Vm)
 extends Table {
@@ -15,6 +15,7 @@ extends Table {
   model = new AbstractTableModel {
     
     vm.reactions += {
+      case VmInitialized(_) => fireTableDataChanged()
       case InstructionExecuted(_) => fireTableDataChanged()
     }
 

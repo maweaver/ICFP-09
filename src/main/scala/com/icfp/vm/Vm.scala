@@ -98,6 +98,16 @@ extends Publisher{
   var currentAddress = 0
   
   /**
+   * Resets the current VM
+   */
+  def reset() {
+    instructions.clear()
+    data.clear()
+    inputPorts.clear()
+    outputPorts.clear()
+  }
+  
+  /**
    * Executes the next instruction, and publishes an update method
    */
   def nextInstruction() {

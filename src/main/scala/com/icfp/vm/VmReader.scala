@@ -12,6 +12,8 @@ object VmReader {
    * VM.
    */
   def populateVm(vm: Vm, input: InputStream) {
+    vm.reset()
+    
     val reader = new VmReader(input)
     for(frame <- reader) {
       vm.data += frame.address -> frame.data

@@ -22,15 +22,11 @@ extends Table {
   
   vm.reactions += { 
     case InstructionExecuted(_) => selectCurrentAddress()
-  }
-    
-  vm.reactions += {
     case VmInitialized(_) => selectCurrentAddress()
   }
   
   selectCurrentAddress()
-  
-  
+
   def scrollToVisible(rowIndex: Int) {
     val viewport = peer.getParent.asInstanceOf[JViewport]
     val rect = peer.getCellRect(rowIndex, 0, true)
