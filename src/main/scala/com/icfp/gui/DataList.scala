@@ -3,17 +3,21 @@ package com.icfp.gui
 import javax.swing.table.AbstractTableModel
 import scala.collection.mutable.Map
 import scala.swing.Table
-import vm.Vm
+import vm.{Vm, InstructionExecuted}
 
-abstract class DataList 
+abstract class DataList(vm: Vm)
 extends Table {
   
   def dataMap: Map[Vm.Address, Vm.Data]
   
   def maxValue: Vm.Address
-
+  
   model = new AbstractTableModel {
     
+    vm.reactions += {
+      case InstructionExecuted(_) => fireTableDataChanged()
+    }
+
     val AddressColumn = 0
     val DataColumn = 1
     

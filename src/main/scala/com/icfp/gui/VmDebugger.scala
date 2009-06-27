@@ -19,17 +19,17 @@ extends MigPanel("", "[100%]", "[100%]") {
 
   add(new TabbedPane {
     
-    pages += new Page("Data", new ScrollPane(new DataList {
+    pages += new Page("Data", new ScrollPane(new DataList(vm) {
       def dataMap = vm.data
       def maxValue = vm.numData
     }))
     
-    pages += new Page("Input Ports", new ScrollPane(new DataList {
+    pages += new Page("Input Ports", new ScrollPane(new DataList(vm) {
       def dataMap = vm.inputPorts
       def maxValue = vm.numInputPorts
     }))
     
-    pages += new Page("Output Ports", new ScrollPane(new DataList {
+    pages += new Page("Output Ports", new ScrollPane(new DataList(vm) {
       def dataMap = vm.outputPorts
       def maxValue = vm.numOutputPorts
     }))

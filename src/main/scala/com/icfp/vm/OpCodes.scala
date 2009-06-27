@@ -5,9 +5,11 @@ import Vm.Address
 /**
  * Base class for the Orbital VM opcodes
  */
-class Opcode(code: Int, rd: Address)  {
+abstract class Opcode(code: Int, rd: Address)  {
   
   def opcode: String = getClass.getName.substring("com.icfp.vm".length + 1)
+  
+  def execute(vm: Vm)
 
   override def toString(): String =
     "[" + code + "]" +
@@ -47,7 +49,7 @@ object Opcode {
 /**
  * D-Codes take Double parameters
  */
-class DCode(val code0: Int, val rd0: Address, val r10: Address, val r20: Address)
+abstract class DCode(val code0: Int, val rd0: Address, val r10: Address, val r20: Address)
 extends Opcode(code0, rd0) {
  
   override def toString(): String =
@@ -59,7 +61,7 @@ extends Opcode(code0, rd0) {
 /**
  * S-Codes take a Single parameter
  */
-class SCode(val code0: Int, val rd0: Address, val r10: Address)
+abstract class SCode(val code0: Int, val rd0: Address, val r10: Address)
 extends Opcode(code0, rd0) {
  
   override def toString(): String =
@@ -71,45 +73,83 @@ extends Opcode(code0, rd0) {
  * rd < - mem[r1] + mem[r2]
  */
 case class Add(rd: Address, r1: Address, r2: Address)
-extends DCode(Opcode.DCode.Add, rd, r1, r2)
+extends DCode(Opcode.DCode.Add, rd, r1, r2) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) + vm.data.getOrElse(r2, 0.0d))
+  }
+}
 
 /**
  * rd < - mem[r1] - mem[r2]
  */
 case class Sub(rd: Address, r1: Address, r2: Address)
-extends DCode(Opcode.DCode.Sub, rd, r1, r2)
+extends DCode(Opcode.DCode.Sub, rd, r1, r2) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) - vm.data.getOrElse(r2, 0.0d))
+  }
+}
 
 /**
  * rd < - mem[r1] * mem[r2]
  */
 case class Mult(rd: Address, r1: Address, r2: Address)
-extends DCode(Opcode.DCode.Mult, rd, r1, r2)
+extends DCode(Opcode.DCode.Mult, rd, r1, r2) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) * vm.data.getOrElse(r2, 0.0d))
+  }
+}
 
 
 /**
  * rd < - 0.0 if mem[r2] == 0.0 else mem[r1] / mem[r2]
  */
 case class Div(rd: Address, r1: Address, r2: Address)
-extends DCode(Opcode.DCode.Div, rd, r1, r2)
+extends DCode(Opcode.DCode.Div, rd, r1, r2) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) / vm.data.getOrElse(r2, 0.0d))
+  }
+}
 
 /**
  * port[r1] < - mem[r2]
  */
 case class Output(rd: Address, r1: Address, r2: Address)
-extends DCode(Opcode.DCode.Output, rd, r1, r2)
+extends DCode(Opcode.DCode.Output, rd, r1, r2) {
+  
+  def execute(vm: Vm) {
+    vm.outputPorts += r1 -> vm.data.getOrElse(r2, 0.0d)
+  }
+}
 
 /**
  * rd < - mem[r1] if status == 1, else mem[r2]
  */
 case class Phi(rd: Address, r1: Address, r2: Address)
-extends DCode(Opcode.DCode.Phi, rd, r1, r2)
+extends DCode(Opcode.DCode.Phi, rd, r1, r2) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> (vm.status match {
+      case true => vm.data.getOrElse(r1, 0.0d)
+      case false => vm.data.getOrElse(r2, 0.0d)
+    })
+  }
+}
 
 
 /**
  * rd < - mem[rd]
  */
 case class Noop(rd: Address, r1: Address)
-extends SCode(Opcode.SCode.Noop, rd, r1)
+extends SCode(Opcode.SCode.Noop, rd, r1) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> vm.data.getOrElse(r1, 0.0d)
+  }
+}
 
 
 /**
@@ -126,6 +166,18 @@ extends SCode(Opcode.SCode.Cmpz, rd, r1) {
     case ComparisonOperator.Gtz => Gtz()
   }
   
+  def execute(vm: Vm) {
+    val data = vm.data.getOrElse(r1, 0.0d)
+    
+    vm.status = op match {
+      case Ltz() => data < 0
+      case Lez() => data <= 0
+      case Eqz() => data == 0
+      case Gez() => data >= 0
+      case Gtz() => data > 0
+    }
+  }
+  
   override def toString(): String =
    super.toString() +
    " " + imm.toString() + " 0.0"
@@ -133,23 +185,37 @@ extends SCode(Opcode.SCode.Cmpz, rd, r1) {
 }
 
 /**
- * status < - abs(sqrt(mem[r1]))
+ * rd < - abs(sqrt(mem[r1]))
  */
 case class Sqrt(rd: Address, r1: Address)
-extends SCode(Opcode.SCode.Sqrt, rd, r1)
-
+extends SCode(Opcode.SCode.Sqrt, rd, r1) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> Math.sqrt(vm.data.getOrElse(r1, 0.0d))
+  }
+}
 
 /**
  * rd < - mem[r1]
  */
 case class Copy(rd: Address, r1: Address)
-extends SCode(Opcode.SCode.Copy, rd, r1)
+extends SCode(Opcode.SCode.Copy, rd, r1) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> vm.data.getOrElse(r1, 0.0d)
+  }
+}
 
 /**
  * rd < - port[r1]
  */
 case class Input(rd: Address, r1: Address)
-extends SCode(Opcode.SCode.Input, rd, r1)
+extends SCode(Opcode.SCode.Input, rd, r1) {
+  
+  def execute(vm: Vm) {
+    vm.data += rd -> vm.inputPorts.getOrElse(r1, 0.0d)
+  }
+}
 
 /**
  * Comparison operators used for the cmpz instruction

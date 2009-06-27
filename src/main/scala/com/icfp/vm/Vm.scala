@@ -101,6 +101,8 @@ extends Publisher{
    * Executes the next instruction, and publishes an update method
    */
   def nextInstruction() {
+    val instruction = instructions.getOrElse(currentAddress, Noop(currentAddress, currentAddress))
+    instruction.execute(this)
     currentAddress += 1
     publish(InstructionExecuted(this))
   }
