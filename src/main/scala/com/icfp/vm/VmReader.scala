@@ -80,7 +80,7 @@ extends Iterator[Frame] {
       val opCode = if(byteCode == 0) sCode(opData) else dCode(opData)
        
       println(opCode + ", " + data)
-      val frame = blankFrame()
+      val frame = Frame(address, opCode, data)
       address += 1
       frame
     }

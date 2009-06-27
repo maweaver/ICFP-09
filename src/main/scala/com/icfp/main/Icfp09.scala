@@ -15,7 +15,7 @@ extends SimpleGUIApplication {
     
     title = "Orbit VM Debugger"
     
-    preferredSize = (700, 700)
+    preferredSize = (1000, 700)
     
     contents = new VmDebugger(vm)
   }

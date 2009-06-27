@@ -30,7 +30,7 @@ extends Table {
     
     override def getValueAt(row: Int, col: Int): Object = {
       if(col == AddressColumn) return "0x" + Integer.toHexString(row)
-        
+      
       vm.instructions.get(row) match {
         case None => return ""
         case Some(info) =>
@@ -39,7 +39,7 @@ extends Table {
           if(info.isInstanceOf[SCode]) {
             val scode = info.asInstanceOf[SCode]
             
-            if(col == R1Column) return scode.r10.toString()
+            if(col == R1Column) return "0x" + Integer.toHexString(scode.r10)
             
             if(info.isInstanceOf[Cmpz]) {
               val cmpz = info.asInstanceOf[Cmpz]
@@ -50,10 +50,12 @@ extends Table {
           if(info.isInstanceOf[DCode]) {
             val dcode = info.asInstanceOf[DCode]
             
-            if(col == R1Column) return dcode.r10.toString()
-            if(col == R2Column) return dcode.r20.toString()
+            if(col == R1Column) return "0x" + Integer.toHexString(dcode.r10)
+            if(col == R2Column) return "0x" + Integer.toHexString(dcode.r20)
           }
       }
+      
+      return ""
     }
     
   }  

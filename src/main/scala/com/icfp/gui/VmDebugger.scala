@@ -24,7 +24,7 @@ extends MigPanel("", "[100%]", "[100%]") {
       def dataMap = vm.outputPorts
     }))
     
-  }, "dock west, width 500")
+  }, "dock west, width 650")
   
   add(new ScrollPane(new CommandList(vm)), "dock south, height 300")
   
