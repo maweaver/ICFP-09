@@ -14,14 +14,18 @@ import vm.Vm
 class VmDebugger(vm: Vm)
 extends MigPanel("", "[100%]", "[100%]") {
   
+  val guiState = new GuiState
+  
+  guiState.reactions += {
+    case ProblemChanged(p) => 
+      p.reset()
+      resetConfigurations()
+  }
+  
   // Initialize each problem's vms here... hackish, but oh well
   Problem.all.foreach { p => p.vm = vm }
-
-  val problemList = new ProblemList(vm) {
-    reactions += {
-      case SelectionChanged(_) => resetConfigurations()
-    }
-  }
+  
+  val problemList = new ProblemList(vm, guiState)
   
   /**
    * Panel used to hold the list of valid configurations.  Used because a new
@@ -32,9 +36,10 @@ extends MigPanel("", "[100%]", "[100%]") {
   
   val toolbar = new JToolBar()
   
-  toolbar.add(new NextInstructionAction(vm).peer)
-  toolbar.add(new FinishStepAction(vm).peer)
+  toolbar.add(new NextInstructionAction(vm, guiState).peer)
+  toolbar.add(new FinishStepAction(vm, guiState).peer)
   toolbar.add(new JToolBar.Separator())
+  toolbar.add(new ResetAction(vm, guiState).peer)
   toolbar.add(new FlowPanel {
     contents += problemList
     contents += configurationHolder
