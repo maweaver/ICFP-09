@@ -10,7 +10,7 @@ object Bits {
     var total = 0l
     var pos = 0
     for(byte <- bytes.reverse) {
-      total += (byte.toInt & 0xff) * Math.pow(2.0d, 8.0d * pos.toDouble).toInt
+      total += (byte.toInt & 0xff) * Math.pow(2.0d, 8.0d * pos.toDouble).toLong
       pos += 1
     }
     

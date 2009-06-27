@@ -71,8 +71,16 @@ extends Iterator[Frame] {
       for(byte <- buffer)
         print(Integer.toHexString(byte.toInt & 0xFF) + " ")
       println()
-       
-      val data = java.lang.Double.longBitsToDouble(Bits.byteArrayToLong((if(address % 2 == 0) { buffer.take(8) } else { buffer.drop(4) }).force.reverse))
+      
+      val dataBytes = (if(address % 2 == 0) { buffer.take(8) } else { buffer.drop(4) }).force.reverse
+      print("Raw data: ")
+      for(byte <- dataBytes)
+        print(Integer.toHexString(byte.toInt & 0xFF) + " ")
+      println()
+      
+      println("As long: " + Bits.byteArrayToLong(dataBytes))
+      
+      val data = java.lang.Double.longBitsToDouble(Bits.byteArrayToLong(dataBytes))
       val opData = Bits.byteArrayToLong((if(address % 2 == 0) { buffer.drop(8) } else { buffer.take(4) }).force.reverse).toInt
        
       val byteCode = Bits.range(opData, 31, 28)
