@@ -1,7 +1,7 @@
 package com.icfp.problems
 
-import scala.swing.{Panel}
-import vm.{Vm, VmReader}
+import scala.swing.{Component}
+import vm.{Vm, VmReader, StepFinished}
 
 object Problem {
   
@@ -27,7 +27,20 @@ abstract class Problem {
   /**
    * Called when the current VM is set
    */
-  def vm_=(value: Vm) { _vm = Some(value) }
+  def vm_=(value: Vm) { 
+    if(_vm.isEmpty) {
+      _vm = Some(value)
+      vm.reactions += {
+        case StepFinished(_) =>
+          observe(vm.currentStep)
+          control(vm.currentStep)
+      }
+      observe(vm.currentStep)
+      control(vm.currentStep)
+    } else {
+      _vm = Some(value) 
+    }
+  }
 
   /**
    * The name of the problem
@@ -47,13 +60,25 @@ abstract class Problem {
   /**
    * GUI used to visualize the problem
    */
-  def visualizer: Panel
+  def visualizer: Component
+  
+  /**
+   * Control the machine for this step
+   */
+  def control(stepNumber: Int)
+  
+  /**
+   * Make any observations about the current step
+   */
+  def observe(stepNumber: Int)
   
   /**
    * Resets the VM to work the current problem
    */
   def reset() {
-     VmReader.populateVm(vm, Thread.currentThread.getContextClassLoader.getResourceAsStream("binaries/" + binary + ".obf"))
+    VmReader.populateVm(vm, Thread.currentThread.getContextClassLoader.getResourceAsStream("binaries/" + binary + ".obf"))
+    observe(vm.currentStep)
+    control(vm.currentStep)
   }
   
   /**

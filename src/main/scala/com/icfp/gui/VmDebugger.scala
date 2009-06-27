@@ -1,5 +1,6 @@
 package com.icfp.gui
 
+import java.awt.Color
 import javax.swing.JToolBar
 import javax.swing.JToolBar.Separator
 import scala.swing.{Component, FlowPanel, Label, ScrollPane, TabbedPane}
@@ -20,6 +21,8 @@ extends MigPanel("", "[100%]", "[100%]") {
     case ProblemChanged(p) => 
       p.reset()
       resetConfigurations()
+      visualizationHolder.peer.removeAll()
+      visualizationHolder.add(p.visualizer, "growx, growy")
   }
   
   // Initialize each problem's vms here... hackish, but oh well
@@ -71,6 +74,12 @@ extends MigPanel("", "[100%]", "[100%]") {
     }))
     
   }, "dock west, width 650")
+  
+  val visualizationHolder = new MigPanel("", "[100%]", "[100%]") {
+    add(Problem.all.first.visualizer, "growx, growy")
+  }
+  
+  add(visualizationHolder, "growx, growy")
   
   add(new ScrollPane(new CommandList(vm)), "dock south, height 300")
   

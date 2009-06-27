@@ -111,6 +111,8 @@ extends Publisher{
     data.clear()
     inputPorts.clear()
     outputPorts.clear()
+    currentAddress = 0
+    currentStep = 0
   }
   
   /**
