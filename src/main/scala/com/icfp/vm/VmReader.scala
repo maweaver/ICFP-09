@@ -75,7 +75,7 @@ extends Iterator[Frame] {
       val data = java.lang.Double.longBitsToDouble(Bits.byteArrayToLong((if(address % 2 == 0) { buffer.take(8) } else { buffer.drop(4) }).force.reverse))
       val opData = Bits.byteArrayToLong((if(address % 2 == 0) { buffer.drop(8) } else { buffer.take(4) }).force.reverse).toInt
        
-      val byteCode = Bits.range(opData, 28, 31)
+      val byteCode = Bits.range(opData, 31, 28)
        
       val opCode = if(byteCode == 0) sCode(opData) else dCode(opData)
        
@@ -94,7 +94,7 @@ extends Iterator[Frame] {
     val imm = Bits.range(opData, 23, 21)
     val r1 = Bits.range(opData, 13, 0)
     
-//    println("SCode found, op = " + Integer.toHexString(op) + ", imm = " + Integer.toHexString(imm) + ", r1 = " + Integer.toHexString(r1))
+    println("SCode found, op = " + Integer.toHexString(op) + ", imm = " + Integer.toHexString(imm) + ", r1 = " + Integer.toHexString(r1))
     
     op match {
       case Opcode.SCode.Noop => Noop(address, r1)
@@ -113,7 +113,7 @@ extends Iterator[Frame] {
     val r1 = Bits.range(opData, 27, 14)
     val r2 = Bits.range(opData, 13, 0)
     
-//    println("SCode found, op = " + Integer.toHexString(op) + ", r1 = " + Integer.toHexString(r1) + ", r2 = " + Integer.toHexString(r2))
+    println("SCode found, op = " + Integer.toHexString(op) + ", r1 = " + Integer.toHexString(r1) + ", r2 = " + Integer.toHexString(r2))
     
     op match {
       case Opcode.DCode.Add => Add(address, r1, r2)
