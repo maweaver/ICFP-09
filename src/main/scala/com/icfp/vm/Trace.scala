@@ -30,7 +30,7 @@ class Trace(vm: Vm) {
     }
     
     var data: List[Byte] = Nil
-    data ++= 0xCA.toByte :: 0xFE.toByte :: 0xBA.toByte :: 0xBE.toByte :: Nil
+    data ++= (0xCA.toByte :: 0xFE.toByte :: 0xBA.toByte :: 0xBE.toByte :: Nil).reverse
     data ++= Bits.intToByteArray(teamId).reverse
     data ++= Bits.intToByteArray(vm.scenarioId).reverse
     for(historyItem <- history.reverse) {
