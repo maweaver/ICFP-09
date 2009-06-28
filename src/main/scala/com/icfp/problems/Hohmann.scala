@@ -74,7 +74,7 @@ extends Problem {
     vm.inputPorts(0x2) = 0.0d
     vm.inputPorts(0x3) = 0.0d
     
-    println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
+    //println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
     lastPhi = Some(polars._2)
     
     // Go into hohmann maneuver
