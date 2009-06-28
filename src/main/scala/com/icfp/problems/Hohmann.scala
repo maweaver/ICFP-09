@@ -46,6 +46,8 @@ extends Problem {
   
   var r1: Option[Double] = None
 
+  var timePredict: Double = 0.0d
+
   /**
    * @inheritDoc
    */
@@ -57,6 +59,7 @@ extends Problem {
 
     if(!lastPhi.isEmpty && clockwise.isEmpty) {
       val deltaPhi = polars._2 - lastPhi.get
+      println("clockwise check " + polars._2 + " " + lastPhi.get)
       clockwise = Some(deltaPhi > 0)
     }
 
@@ -76,7 +79,9 @@ extends Problem {
         
       val deltaVs = Physics.hohmannIn((-sx, -sy), targetRadius, clockwise.get)
       
+      timePredict = vm.currentStep + Physics.hohmannTime((-sx, -sy), targetRadius)
       println("Starting Hohmann maneuver at time " + vm.currentStep + " using deltavs of (" + deltaVs._1 + ", " + deltaVs._2 + "); expected duration is " + Physics.hohmannTime((-sx, -sy), targetRadius))
+      println("Should come out at " + timePredict)
       vm.inputPorts(0x2) = deltaVs._1
       vm.inputPorts(0x3) = deltaVs._2
       doingHohmann = true
@@ -86,7 +91,9 @@ extends Problem {
     if(!clockwise.isEmpty &&
       !r1.isEmpty &&
       doingHohmann &&
-      Math.abs(targetRadius - polars._1) < 10) {
+      (vm.currentStep >= timePredict)) {
+
+      /*Math.abs(targetRadius - polars._1) < 10)*/
       
       val deltaVs = Physics.hohmannOut(r1.get, (-sx, -sy), targetRadius, clockwise.get)
       
