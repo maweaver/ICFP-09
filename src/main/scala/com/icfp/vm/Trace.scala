@@ -68,5 +68,6 @@ class Trace(vm: Vm) {
   
   def reset() {
     lastInputs = Array.make(Vm.MaxAddr, 0.0d)
+    history = Nil
   }
 }
