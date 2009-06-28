@@ -41,7 +41,17 @@ case class StepFinished(vm: Vm)
 extends Event
 
 class Vm 
-extends Publisher{
+extends Publisher {
+  
+  /**
+   * The id of the scenario being run
+   */
+  var scenarioId = 0
+  
+  /**
+   * Keeps track of changes in input
+   */
+  val trace = new Trace(this)
   
   /**
    * The instruction space.  This space is stored as a map, rather than a list,
@@ -115,6 +125,7 @@ extends Publisher{
     outputPorts = Array.make(Vm.MaxAddr, 0.0d)
     currentAddress = 0
     currentStep = 0
+    trace.reset()
   }
   
   /**
@@ -137,7 +148,8 @@ extends Publisher{
   def finishStep() {
     while(currentAddress < numInstructions)
       nextInstruction()
-      
+     
+    trace.processStep()
     currentAddress = 0
     currentStep += 1
     publish(StepFinished(this))

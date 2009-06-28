@@ -39,6 +39,7 @@ extends MigPanel("", "[100%]", "[100%]") {
   
   val toolbar = new JToolBar()
   
+  toolbar.add(new TraceAction(vm, guiState).peer)
   toolbar.add(new NextInstructionAction(vm, guiState).peer)
   toolbar.add(new FinishStepAction(vm, guiState).peer)
   toolbar.add(new JToolBar.Separator())

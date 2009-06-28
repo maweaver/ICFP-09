@@ -26,6 +26,7 @@ extends ComboBox(problem.configurations) {
    */
   def setConfiguration() {
     vm.inputPorts(0x3E80) = selection.item.toDouble
+    vm.scenarioId = selection.item
   }
   
 }

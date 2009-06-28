@@ -61,3 +61,18 @@ extends Action("Run") {
   }
   
 } 
+
+/**
+ * Action used to export the current trace
+ */
+class TraceAction(vm: Vm, guiState: GuiState)
+extends Action("Export Trace") {
+
+  icon = new ImageIcon(Thread.currentThread.getContextClassLoader.getResource("img/trace.png"))
+  toolTip = "Export a trace file"
+  
+  override def apply() {
+    vm.trace.dump()
+  }
+  
+}
