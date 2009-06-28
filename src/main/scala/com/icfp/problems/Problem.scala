@@ -8,7 +8,7 @@ object Problem {
   /**
    * All available problems
    */
-  def all: Seq[Problem] = Hohmann :: MeetAndGreet :: Nil
+  def all: Seq[Problem] = Hohmann :: MeetAndGreet :: EccentricMeetAndGreet :: Nil
   
 }
 

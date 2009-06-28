@@ -23,6 +23,7 @@ extends MigPanel("", "[100%]", "[100%]") {
       resetConfigurations()
       visualizationHolder.peer.removeAll()
       visualizationHolder.add(p.visualizer, "growx, growy")
+      visualizationHolder.peer.invalidate()
   }
   
   // Initialize each problem's vms here... hackish, but oh well
