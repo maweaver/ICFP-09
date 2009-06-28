@@ -1,8 +1,10 @@
 package com.icfp.problems
 
-import java.awt.{Color, Graphics}
+import java.awt.{Color, Graphics, Point}
 import javax.swing.table.{AbstractTableModel}
 import scala.swing.{Component, Orientation, Panel, ScrollPane, SplitPane, Table}
+import gui.MigPanel
+import util.{GraphicsUtil, Physics}
 import vm.Vm
 
 /**
@@ -56,53 +58,77 @@ extends Problem {
         vm.outputPorts.getOrElse(0x4, 0.0d))) //targetRadius
         
     dataTable.model.asInstanceOf[AbstractTableModel].fireTableDataChanged()
+    graphicsPanel.peer.repaint(0, 0, 0, graphicsPanel.size.getWidth.toInt, graphicsPanel.size.getHeight.toInt)
   }
   
-  val dataTable  = new Table {
-    val StepNumColumn = 0
-    val ScoreColumn = 1
-    val FuelColumn = 2
-    val SxColumn = 3
-    val SyColumn = 4
-    val RadiusColumn = 5
-    val TargetRadiusColumn = 6
+  val dataTable = new Table {
+      val StepNumColumn = 0
+      val ScoreColumn = 1
+      val FuelColumn = 2
+      val SxColumn = 3
+      val SyColumn = 4
+      val RadiusColumn = 5
+      val TargetRadiusColumn = 6
       
-    model = new AbstractTableModel {
+      model = new AbstractTableModel {
       
-      override def getColumnName(col: Int): String = col match {
-        case StepNumColumn => "Step Number"
-        case ScoreColumn => "Score"
-        case FuelColumn => "Fuel"
-        case SxColumn => "Sx"
-        case SyColumn => "Sy"
-        case RadiusColumn => "Radius"
-        case TargetRadiusColumn => "Target Radius"
-      }
+        override def getColumnName(col: Int): String = col match {
+          case StepNumColumn => "Step Number"
+          case ScoreColumn => "Score"
+          case FuelColumn => "Fuel"
+          case SxColumn => "Sx"
+          case SyColumn => "Sy"
+          case RadiusColumn => "Radius"
+          case TargetRadiusColumn => "Target Radius"
+        }
       
-      override def getRowCount(): Int = info.length
+        override def getRowCount(): Int = info.length
      
-      override def getColumnCount(): Int = 7
+        override def getColumnCount(): Int = 7
       
-      override def getValueAt(row: Int, col: Int): Object = {
-        val currInfo = info.drop(row).first
-        col match {
-          case StepNumColumn => currInfo.stepNum.toString()
-          case ScoreColumn => currInfo.score.toString()
-          case FuelColumn => currInfo.fuel.toString()
-          case SxColumn => currInfo.sx.toString()
-          case SyColumn => currInfo.sy.toString()
-          case RadiusColumn => currInfo.radius.toString()
-          case TargetRadiusColumn => currInfo.targetRadius.toString()
-          case _ => ""
+        override def getValueAt(row: Int, col: Int): Object = {
+          val currInfo = info.drop(row).first
+          col match {
+            case StepNumColumn => currInfo.stepNum.toString()
+            case ScoreColumn => currInfo.score.toString()
+            case FuelColumn => currInfo.fuel.toString()
+            case SxColumn => currInfo.sx.toString()
+            case SyColumn => currInfo.sy.toString()
+            case RadiusColumn => currInfo.radius.toString()
+            case TargetRadiusColumn => currInfo.targetRadius.toString()
+            case _ => ""
+          }
         }
       }
     }
+    
+  val graphicsPanel = new Panel {
+      override def paintComponent(g: Graphics) {
+        
+        g.setColor(Color.BLACK)
+        g.fillRect(0, 0, size.getWidth.toInt, size.getHeight.toInt)
+        
+        val lastInfo = info.reverse.first
+        
+        GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, Physics.Re, Color.GREEN, true)
+        GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, lastInfo.radius, Color.WHITE, false)
+        GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, lastInfo.targetRadius, Color.BLUE, false)
+        
+        g.setColor(Color.RED)
+        val point = GraphicsUtil.globalToLocal(size, 6.0d * Physics.Re, lastInfo.sx, lastInfo.sy)
+        g.fillOval(point._1.toInt - 2, point._2.toInt - 2, 4, 4)
+      }
+    }
+  
+  val _visualizer  = new MigPanel("", "[100%]", "[50%][50%]") {
+    add(graphicsPanel, "growx, growy, wrap")
+    add(new ScrollPane(dataTable), "growx, growy")
   }
   
   /**
    * @inheritDoc
    */
-  def visualizer: Component = new ScrollPane(dataTable)
+  def visualizer: Component = _visualizer
   
   override def reset() {
     super.reset()
