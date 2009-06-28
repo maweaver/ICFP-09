@@ -32,7 +32,7 @@ extends Table {
     override def getColumnCount(): Int = 2
     
     override def getValueAt(row: Int, col: Int): Object = {
-      if(col == AddressColumn) return "0x" + row
+      if(col == AddressColumn) return "0x" + Integer.toHexString(row)
       if(col == DataColumn) return data(row).toString()
       return ""
     }
