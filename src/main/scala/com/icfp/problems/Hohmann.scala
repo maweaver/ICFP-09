@@ -37,11 +37,59 @@ extends Problem {
    * @inheritDoc
    */
   override def binary = "bin1"
+  
+  var doingHohmann = false
+  
+  var clockwise: Option[Boolean] = None
+  
+  var lastPhi: Double = -1.0d
 
   /**
    * @inheritDoc
    */
   override def control(stepNum: Int) {
+    val targetRadius = vm.outputPorts(0x4)
+    val sx = vm.outputPorts(0x2)
+    val sy = vm.outputPorts(0x3)
+    val polars = Physics.toPolar(-sx, -sy)
+
+    if(lastPhi != -1.0d) {
+      val deltaPhi = polars._2 - lastPhi
+      clockwise = Some(deltaPhi < 0)
+    }
+
+    vm.inputPorts(0x2) = 0.0d
+    vm.inputPorts(0x3) = 0.0d
+    
+    println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
+    lastPhi = polars._2
+    
+    // Go into hohmann maneuver
+    if(!clockwise.isEmpty &&
+      !doingHohmann && 
+      targetRadius != 0.0d && 
+      Math.abs(targetRadius - polars._1) > 1000) {
+        
+      val deltaVs = Physics.hohmannIn((-sx, -sy), targetRadius, clockwise.get)
+      
+      println("Starting Hohmann maneuver at time " + vm.currentStep + " using deltavs of (" + deltaVs._1 + ", " + deltaVs._2 + "); expected duration is " + Physics.hohmannTime((-sx, -sy), targetRadius))
+      vm.inputPorts(0x2) = deltaVs._1
+      vm.inputPorts(0x3) = deltaVs._2
+      doingHohmann = true
+    }
+    
+    // Come out of hohmann maneuver
+    if(!clockwise.isEmpty &&
+      doingHohmann &&
+      Math.abs(targetRadius - polars._1) < 100) {
+      
+      val deltaVs = Physics.hohmannOut((-sx, -sy), targetRadius, clockwise.get)
+      
+      println("Finishing Hohmann maneuver at time " + vm.currentStep + " using deltavs of (" + deltaVs._1 + ", " + deltaVs._2 + ")")
+      vm.inputPorts(0x2) = deltaVs._1
+      vm.inputPorts(0x3) = deltaVs._2
+      doingHohmann = false
+    }
   }
   
   /**
@@ -135,5 +183,8 @@ extends Problem {
   override def reset() {
     super.reset()
     info = Nil
+    doingHohmann = false
+    clockwise = None
+    lastPhi = -1.0d
   }
 }

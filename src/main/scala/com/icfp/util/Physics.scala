@@ -51,9 +51,18 @@ object Physics {
       } else {
         polars._2 + Pi / 2.0d
       }
-
-    val vMag = Math.sqrt(G * Me / r1) * Math.sqrt((2 * r2) / (r1 + r2) - 1)
+      
+    val vMag = Math.sqrt(G * Me / r1) * (Math.sqrt((2 * r2) / (r1 + r2)) - 1)
     
+    println("G: " + G)
+    println("Me: " + Me)
+    println("U: " + (G * Me))
+    println("Cartesian coordinate: (" + pos._1 + ", " + pos._2 + ")")
+    println("Polar coordinates: (" + polars._1 + ", " + polars._2 + ")")
+    println("Target radius: " + r2)
+    println("Direction to fire thrusters: " + dvDir)
+    println("Velocity: magnitude = " + vMag + ", components are (" + (vMag * Math.cos(dvDir)) + ", " + (vMag * Math.sin(dvDir)) + ")")
+
     (vMag * Math.cos(dvDir), vMag * Math.sin(dvDir))
   }
   
