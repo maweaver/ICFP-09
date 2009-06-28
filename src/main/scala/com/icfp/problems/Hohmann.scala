@@ -4,7 +4,7 @@ import java.awt.{Color, Graphics, Point}
 import javax.swing.table.{AbstractTableModel}
 import scala.swing.{Component, Orientation, Panel, ScrollPane, SplitPane, Table}
 import gui.MigPanel
-import util.{GraphicsUtil, Physics}
+import util.{GraphicsUtil, ObjectTracker, Physics}
 import vm.Vm
 
 /**
@@ -38,11 +38,9 @@ extends Problem {
    */
   override def binary = "bin1"
   
+  val satelliteTracker = new ObjectTracker()
+  
   var doingHohmann = false
-  
-  var clockwise: Option[Boolean] = None
-  
-  var lastPhi: Option[Double] = None
   
   var r1: Option[Double] = None
 
@@ -55,39 +53,24 @@ extends Problem {
     val targetRadius = vm.outputPorts(0x4)
     val sx = vm.outputPorts(0x2)
     val sy = vm.outputPorts(0x3)
-    val polars = Physics.toPolar(-sx, -sy)
-
-    if(!lastPhi.isEmpty && clockwise.isEmpty) {
-      var deltaPhi = polars._2 - lastPhi.get
-      
-      var newDeltaPhi = 
-        if(deltaPhi > Physics.Pi)
-          deltaPhi - 2.0d * Physics.Pi
-        else if(deltaPhi < -Physics.Pi)
-          deltaPhi + 2.0d * Physics.Pi
-        else
-          deltaPhi
-      println("clockwise check " + polars._2 + " " + lastPhi.get + ", deltaPhi = " + newDeltaPhi)
-      clockwise = Some(newDeltaPhi < 0)
-    }
+    satelliteTracker.addPosition(-sx, -sy)
 
     vm.inputPorts(0x2) = 0.0d
     vm.inputPorts(0x3) = 0.0d
     
     //println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
-    lastPhi = Some(polars._2)
     
     // Go into hohmann maneuver
-    if(!clockwise.isEmpty &&
+    if(!satelliteTracker.clockwise.isEmpty &&
       !doingHohmann && 
       targetRadius != 0.0d && 
-      Math.abs(targetRadius - polars._1) > 1000) {
+      Math.abs(targetRadius - satelliteTracker.radii.first) > 1000) {
         
-      r1 = Some(polars._1)
+      r1 = Some(satelliteTracker.radii.first)
         
-      val deltaVs = Physics.hohmannIn((-sx, -sy), targetRadius, clockwise.get)
+      val deltaVs = Physics.hohmannIn(satelliteTracker.positions.first, targetRadius, satelliteTracker.clockwise.get)
       
-      timePredict = vm.currentStep + Physics.hohmannTime((-sx, -sy), targetRadius)
+      timePredict = vm.currentStep + Physics.hohmannTime(satelliteTracker.positions.first, targetRadius)
       println("Starting Hohmann maneuver at time " + vm.currentStep + " using deltavs of (" + deltaVs._1 + ", " + deltaVs._2 + "); expected duration is " + Physics.hohmannTime((-sx, -sy), targetRadius))
       println("Should come out at " + timePredict)
       vm.inputPorts(0x2) = deltaVs._1
@@ -96,14 +79,12 @@ extends Problem {
     }
     
     // Come out of hohmann maneuver
-    if(!clockwise.isEmpty &&
+    if(!satelliteTracker.clockwise.isEmpty &&
       !r1.isEmpty &&
       doingHohmann &&
       (vm.currentStep >= timePredict)) {
 
-      /*Math.abs(targetRadius - polars._1) < 10)*/
-      
-      val deltaVs = Physics.hohmannOut(r1.get, (-sx, -sy), targetRadius, clockwise.get)
+      val deltaVs = Physics.hohmannOut(r1.get, satelliteTracker.positions.first, targetRadius, satelliteTracker.clockwise.get)
       
       println("Finishing Hohmann maneuver at time " + vm.currentStep + " using deltavs of (" + deltaVs._1 + ", " + deltaVs._2 + ")")
       vm.inputPorts(0x2) = deltaVs._1
@@ -204,8 +185,6 @@ extends Problem {
     super.reset()
     info = Nil
     doingHohmann = false
-    clockwise = None
-    lastPhi = None
     r1 = None
   }
 }

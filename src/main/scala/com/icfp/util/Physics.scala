@@ -115,4 +115,7 @@ object Physics {
      
     Pi * Math.sqrt(Math.pow(r1 + r2, 3.0d) / (8.0d * G * Me))
   }
+  
+  def distance(p1: (Double, Double), p2: (Double, Double)): Double =
+    Math.sqrt(Math.pow(p2._1 - p1._1, 2.0d) + Math.pow(p2._2 - p1._2, 2.0d))
 }
