@@ -21,6 +21,26 @@ object Physics {
    * Radius of the earth
    */
   val Re = 6557000.000001654d
+  
+  def normalizeAngle(angle: Double): Double = {
+    def makeLess2Pi(angle: Double): Double = {
+      if(angle > 2.0d * Pi) {
+        makeLess2Pi(angle - 2.0d * Pi)
+      } else {
+        angle
+      }
+    }
+    
+    def makeGreaterZero(angle: Double): Double = {
+      if(angle < 0.0d) {
+        makeGreaterZero(angle + 2.0d * Pi)
+      } else {
+        angle
+      }
+    }
+    
+    makeLess2Pi(makeGreaterZero(angle))
+  }
  
   /**
    * Converts cartesian coordinates to polar; return value is (r, phi)
