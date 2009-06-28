@@ -25,4 +25,13 @@ object GraphicsUtil {
       g.drawOval(ul._1.toInt, ul._2.toInt, (lr._1 - ul._1).toInt, (lr._2 - ul._2).toInt)
     }
   }
+  
+  /**
+   * Draws a point using coordinates relative to the center of the earth
+   */
+   def drawPoint(g: Graphics, imageSize: Dimension, maxRadius: Double, globalX: Double, globalY: Double, color: Color) {
+     val localPoint = globalToLocal(imageSize, maxRadius, globalX, globalY)
+     g.setColor(color)
+     g.fillRect(localPoint._1.toInt - 1, localPoint._2.toInt - 1, 2, 2)
+   }
 }

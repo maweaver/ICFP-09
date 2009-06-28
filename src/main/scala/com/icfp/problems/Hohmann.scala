@@ -104,20 +104,23 @@ extends Problem {
   val graphicsPanel = new Panel {
       override def paintComponent(g: Graphics) {
         
+        val maxRadius = 6.0d * Physics.Re
+         
         g.setColor(Color.BLACK)
         g.fillRect(0, 0, size.getWidth.toInt, size.getHeight.toInt)
         
-        val lastInfo = info.first
+        GraphicsUtil.drawRadius(g, size, maxRadius, Physics.Re, Color.GREEN, true)
         
-        GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, Physics.Re, Color.GREEN, true)
-        GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, lastInfo.radius, Color.WHITE, false)
-        GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, lastInfo.targetRadius, Color.BLUE, false)
+        if(!info.isEmpty) {
+          val lastInfo = info.first
+          
+          GraphicsUtil.drawRadius(g, size, maxRadius, lastInfo.radius, Color.WHITE, false)
+          GraphicsUtil.drawRadius(g, size, maxRadius, lastInfo.targetRadius, Color.BLUE, false)
         
-        g.setColor(Color.RED)
-        val point = GraphicsUtil.globalToLocal(size, 6.0d * Physics.Re, -lastInfo.sx, -lastInfo.sy)
-        g.fillOval(point._1.toInt - 2, point._2.toInt - 2, 4, 4)
+          GraphicsUtil.drawPoint(g, size, maxRadius, -lastInfo.sx, -lastInfo.sy, Color.RED)
       }
     }
+  }
   
   val _visualizer  = new MigPanel("", "[100%]", "[50%][50%]") {
     add(graphicsPanel, "growx, growy, wrap")

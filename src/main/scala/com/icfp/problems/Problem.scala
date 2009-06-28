@@ -35,7 +35,6 @@ abstract class Problem {
           observe(vm.currentStep)
           control(vm.currentStep)
       }
-      observe(vm.currentStep)
       control(vm.currentStep)
     } else {
       _vm = Some(value) 
@@ -77,8 +76,7 @@ abstract class Problem {
    */
   def reset() {
     VmReader.populateVm(vm, Thread.currentThread.getContextClassLoader.getResourceAsStream("binaries/" + binary + ".obf"))
-    observe(vm.currentStep)
-    control(vm.currentStep)
+     control(vm.currentStep)
   }
   
   /**
