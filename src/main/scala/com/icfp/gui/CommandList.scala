@@ -5,7 +5,7 @@ import javax.swing.JViewport
 import javax.swing.table.AbstractTableModel
 
 import scala.swing.Table
-import vm.{Cmpz, DCode, SCode, Vm, InstructionExecuted, VmInitialized}
+import vm.{Cmpz, DCode, SCode, Vm, InstructionExecuted, VmInitialized, Eof}
 
 class CommandList(vm: Vm)
 extends Table {
@@ -51,16 +51,16 @@ extends Table {
       case OpColumn => "Operation"
     }
     
-    override def getRowCount(): Int = vm.instructions.keys.foldLeft(0) { (a, b) => Math.max(a, b) }
+    override def getRowCount(): Int = vm.numInstructions
     
     override def getColumnCount(): Int = 5
     
     override def getValueAt(row: Int, col: Int): Object = {
       if(col == AddressColumn) return "0x" + Integer.toHexString(row)
       
-      vm.instructions.get(row) match {
-        case None => return ""
-        case Some(info) =>
+      vm.instructions(row) match {
+        case Eof() => return ""
+        case info =>
           if(col == OpcodeColumn) return info.opcode
            
           if(info.isInstanceOf[SCode]) {

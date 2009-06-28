@@ -21,7 +21,7 @@ extends Problem {
   /**
    * Info on the steps that have been executed
    */
-  private var info: Seq[HohmannInfo] = Nil
+  private var info: List[HohmannInfo] = Nil
 
   /**
    * @inheritDoc
@@ -48,14 +48,13 @@ extends Problem {
    * @inheritDoc
    */
   override def observe(stepNum: Int) {
-    info = info ++ List(
-      HohmannInfo(stepNum, 
-        vm.outputPorts.getOrElse(0x0, 0.0d), // score
-        vm.outputPorts.getOrElse(0x1, 0.0d), // fuel
-        vm.outputPorts.getOrElse(0x2, 0.0d), // sx
-        vm.outputPorts.getOrElse(0x3, 0.0d), // sy
-        Math.sqrt(Math.pow(vm.outputPorts.getOrElse(0x2, 0.0d), 2.0d) + Math.pow(vm.outputPorts.getOrElse(0x3, 0.0d), 2.0d)),
-        vm.outputPorts.getOrElse(0x4, 0.0d))) //targetRadius
+    info ::= HohmannInfo(stepNum, 
+      vm.outputPorts(0x0), // score
+      vm.outputPorts(0x1), // fuel
+      vm.outputPorts(0x2), // sx
+      vm.outputPorts(0x3), // sy
+      Math.sqrt(Math.pow(vm.outputPorts(0x2), 2.0d) + Math.pow(vm.outputPorts(0x3), 2.0d)),
+      vm.outputPorts(0x4)) //targetRadius
         
     dataTable.model.asInstanceOf[AbstractTableModel].fireTableDataChanged()
     graphicsPanel.peer.repaint(0, 0, 0, graphicsPanel.size.getWidth.toInt, graphicsPanel.size.getHeight.toInt)
@@ -108,7 +107,7 @@ extends Problem {
         g.setColor(Color.BLACK)
         g.fillRect(0, 0, size.getWidth.toInt, size.getHeight.toInt)
         
-        val lastInfo = info.reverse.first
+        val lastInfo = info.first
         
         GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, Physics.Re, Color.GREEN, true)
         GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, lastInfo.radius, Color.WHITE, false)

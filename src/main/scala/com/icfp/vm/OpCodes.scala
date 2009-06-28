@@ -17,6 +17,13 @@ abstract class Opcode(code: Int, rd: Address)  {
     "@" + Integer.toHexString(rd)
 }
 
+case class Eof()
+extends Opcode(-1, 0) {
+  
+  def execute(vm: Vm) { }
+  
+}
+
 /**
  * Opcode constants
  */
@@ -76,7 +83,7 @@ case class Add(rd: Address, r1: Address, r2: Address)
 extends DCode(Opcode.DCode.Add, rd, r1, r2) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) + vm.data.getOrElse(r2, 0.0d))
+    vm.data(rd) = vm.data(r1) + vm.data(r2)
   }
 }
 
@@ -87,7 +94,7 @@ case class Sub(rd: Address, r1: Address, r2: Address)
 extends DCode(Opcode.DCode.Sub, rd, r1, r2) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) - vm.data.getOrElse(r2, 0.0d))
+    vm.data(rd) = vm.data(r1) - vm.data(r2)
   }
 }
 
@@ -98,7 +105,7 @@ case class Mult(rd: Address, r1: Address, r2: Address)
 extends DCode(Opcode.DCode.Mult, rd, r1, r2) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) * vm.data.getOrElse(r2, 0.0d))
+    vm.data(rd) = vm.data(r1) * vm.data(r2)
   }
 }
 
@@ -110,7 +117,7 @@ case class Div(rd: Address, r1: Address, r2: Address)
 extends DCode(Opcode.DCode.Div, rd, r1, r2) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> (vm.data.getOrElse(r1, 0.0d) / vm.data.getOrElse(r2, 0.0d))
+    vm.data(rd) = vm.data(r1) / vm.data(r2)
   }
 }
 
@@ -121,7 +128,7 @@ case class Output(rd: Address, r1: Address, r2: Address)
 extends DCode(Opcode.DCode.Output, rd, r1, r2) {
   
   def execute(vm: Vm) {
-    vm.outputPorts += r1 -> vm.data.getOrElse(r2, 0.0d)
+    vm.outputPorts(r1) = vm.data(r2)
   }
 }
 
@@ -132,9 +139,9 @@ case class Phi(rd: Address, r1: Address, r2: Address)
 extends DCode(Opcode.DCode.Phi, rd, r1, r2) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> (vm.status match {
-      case true => vm.data.getOrElse(r1, 0.0d)
-      case false => vm.data.getOrElse(r2, 0.0d)
+    vm.data(rd) = (vm.status match {
+      case true => vm.data(r1)
+      case false => vm.data(r2)
     })
   }
 }
@@ -146,7 +153,7 @@ case class Noop(rd: Address, r1: Address)
 extends SCode(Opcode.SCode.Noop, rd, r1) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> vm.data.getOrElse(rd, 0.0d)
+    vm.data(rd) = vm.data(rd)
   }
 }
 
@@ -165,7 +172,7 @@ extends SCode(Opcode.SCode.Cmpz, rd, r1) {
   }
   
   def execute(vm: Vm) {
-    val data = vm.data.getOrElse(r1, 0.0d)
+    val data = vm.data(r1)
     
     vm.status = op match {
       case Ltz() => data < 0
@@ -189,7 +196,7 @@ case class Sqrt(rd: Address, r1: Address)
 extends SCode(Opcode.SCode.Sqrt, rd, r1) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> Math.sqrt(vm.data.getOrElse(r1, 0.0d))
+    vm.data(rd) = Math.sqrt(vm.data(r1))
   }
 }
 
@@ -200,7 +207,7 @@ case class Copy(rd: Address, r1: Address)
 extends SCode(Opcode.SCode.Copy, rd, r1) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> vm.data.getOrElse(r1, 0.0d)
+    vm.data(rd) = vm.data(r1)
   }
 }
 
@@ -211,7 +218,7 @@ case class Input(rd: Address, r1: Address)
 extends SCode(Opcode.SCode.Input, rd, r1) {
   
   def execute(vm: Vm) {
-    vm.data += rd -> vm.inputPorts.getOrElse(r1, 0.0d)
+    vm.data(rd) = vm.inputPorts(r1)
   }
 }
 

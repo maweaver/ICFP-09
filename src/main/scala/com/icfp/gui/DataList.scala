@@ -8,7 +8,7 @@ import vm.{Vm, InstructionExecuted, VmInitialized}
 abstract class DataList(vm: Vm)
 extends Table {
   
-  def dataMap: Map[Vm.Address, Vm.Data]
+  def data: Array[Vm.Data]
   
   def maxValue: Vm.Address
   
@@ -32,8 +32,8 @@ extends Table {
     override def getColumnCount(): Int = 2
     
     override def getValueAt(row: Int, col: Int): Object = {
-      if(col == AddressColumn) return "0x" + Integer.toHexString(row)
-      if(col == DataColumn) return dataMap.getOrElse(row, 0.0d).toString()
+      if(col == AddressColumn) return "0x" + row
+      if(col == DataColumn) return data(row).toString()
       return ""
     }
     
@@ -44,7 +44,7 @@ extends Table {
     
     override def setValueAt(value: Object, row: Int, col: int) {
       try {
-        dataMap += row -> new java.lang.Double(value.toString()).asInstanceOf[Vm.Data]
+        data(row) = new java.lang.Double(value.toString()).asInstanceOf[Vm.Data]
       } catch { case _ => }
     }
     

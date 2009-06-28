@@ -25,7 +25,7 @@ extends ComboBox(problem.configurations) {
    * Updates the configuration port based on the selected configuration
    */
   def setConfiguration() {
-    vm.inputPorts += 0x3E80 -> selection.item.toDouble
+    vm.inputPorts(0x3E80) = selection.item.toDouble
   }
   
 }

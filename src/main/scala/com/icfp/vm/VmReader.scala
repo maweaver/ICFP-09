@@ -15,11 +15,13 @@ object VmReader {
     vm.reset()
     
     val reader = new VmReader(input)
+    vm.numInstructions = 0
     for(frame <- reader) {
-      vm.data += frame.address -> frame.data
-      vm.instructions += frame.address -> frame.opcode
+      vm.data(frame.address) = frame.data
+      vm.instructions(frame.address) = frame.opcode
+      vm.numInstructions += 1
     }
-    
+
     vm.publish(VmInitialized(vm))
   }
   

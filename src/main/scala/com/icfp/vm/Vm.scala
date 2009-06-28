@@ -11,12 +11,14 @@ object Vm {
   * extend int and do bounds-checking?
   */
   type Address = Int
-
+  
   /**
   * Actual data value.  Thankfully, Java's double matches the 64-bit IEEE-754
   * format used by the Orbital VM.
   */
   type Data = double
+  
+  lazy val MaxAddr = Math.pow(2.0d, 14).toInt
   
 }
 
@@ -45,47 +47,47 @@ extends Publisher{
    * The instruction space.  This space is stored as a map, rather than a list,
    * because it is so huge, but likely sparsely populated.
    */
-  val instructions = Map[Vm.Address, Opcode]()
+  var instructions: Array[Opcode] = Array.make(Vm.MaxAddr, Eof())
   
   /**
    * The number of instructions.  This is the highest address where an 
    * instruction has been set.
    */
-  def numInstructions = (instructions.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
+  var numInstructions = Vm.MaxAddr
   
   /**
    * The data space.  This space is stored as a map, rather than a list,
    * because it is so huge, but likely sparsely populated.
    */
-  val data = Map[Vm.Address, Vm.Data]()
+  var data = Array.make(Vm.MaxAddr, 0.0d)
   
   /**
    * The number of data elements.  This is the highest address where data
    * has been set.
    */
-  def numData = (data.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
+  def numData = Vm.MaxAddr
   
   /**
    * Ports that provide data to the VM
    */
-  val inputPorts = Map[Vm.Address, Vm.Data]()
+  var inputPorts = Array.make(Vm.MaxAddr, 0.0d)
   
   /**
    * The number of input ports.  This is hardcoded at 0x3E81 for now, since
    * port number 0x3E80 is the highest address used
    */
-  def numInputPorts = 0x3E81
+  def numInputPorts = Vm.MaxAddr
   
   /**
    * Ports by which the data interacts with the outside world
    */
-  val outputPorts = Map[Vm.Address, Vm.Data]()
+  var outputPorts = Array.make(Vm.MaxAddr, 0.0d)
   
   /**
    * The number of output ports.  This is the highest address where an 
    * output port's value has been set.
    */
-  def numOutputPorts = (outputPorts.keys.foldLeft(0) { (a, b) => Math.max(a, b) } + 1)
+  def numOutputPorts = Vm.MaxAddr
   
   /**
    * Status flag.
@@ -107,10 +109,10 @@ extends Publisher{
    * Resets the current VM
    */
   def reset() {
-    instructions.clear()
-    data.clear()
-    inputPorts.clear()
-    outputPorts.clear()
+    instructions = Array.make(Vm.MaxAddr, Eof())
+    data = Array.make(Vm.MaxAddr, 0.0d)
+    inputPorts = Array.make(Vm.MaxAddr, 0.0d)
+    outputPorts = Array.make(Vm.MaxAddr, 0.0d)
     currentAddress = 0
     currentStep = 0
   }
@@ -119,10 +121,14 @@ extends Publisher{
    * Executes the next instruction, and publishes an update method
    */
   def nextInstruction() {
-    val instruction = instructions.getOrElse(currentAddress, Noop(currentAddress, currentAddress))
-    instruction.execute(this)
-    currentAddress += 1
-    publish(InstructionExecuted(this))
+    val instruction = instructions(currentAddress)
+    instruction match {
+      case Eof() =>
+      case _ =>
+        instruction.execute(this)
+        currentAddress += 1
+        publish(InstructionExecuted(this))
+    }
   }
   
   /**
