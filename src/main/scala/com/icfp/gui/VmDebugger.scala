@@ -49,8 +49,8 @@ extends MigPanel("", "[100%]", "[100%]") {
   }.peer)
   
   toolbar.add(new FlowPanel {
-    contents += new Label("Target Step:")
-    contents += new TargetStepInput(vm, guiState)
+    contents += new Label("Step Increment:")
+    contents += new StepIncrement(vm, guiState)
   }.peer)
   toolbar.add(new RunAction(vm, guiState).peer)
   

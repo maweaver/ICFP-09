@@ -56,7 +56,7 @@ extends Action("Run") {
   toolTip = "Runs the current problem until the target step is reached"
   
   override def apply() {
-    while(vm.currentStep < guiState.targetStep)
+    for(i <- 0 until guiState.stepIncrement) 
       vm.finishStep()
   }
   

@@ -13,7 +13,7 @@ extends Event
 /**
  * Event dispatched when the target step changes
  */
-case class TargetStepChanged(newVal: Int)
+case class StepIncrementChanged(newVal: Int)
 extends Event
 
 /**
@@ -35,15 +35,15 @@ extends Publisher {
   }
   
   
-  private var _targetStep: Int = 900
+  private var _stepIncrement: Int = 900
  
   /**
    * The step to stop a running execution at
    */
-  def targetStep: Int = _targetStep
+  def stepIncrement: Int = _stepIncrement
   
-  def targetStep_=(value: Int) {
-    _targetStep = value
-    publish(TargetStepChanged(value))
+  def stepIncrement_=(value: Int) {
+    _stepIncrement = value
+    publish(StepIncrementChanged(value))
   }
 }

@@ -4,22 +4,22 @@ import scala.swing.TextField
 import scala.swing.event.ValueChanged
 import vm.Vm
 
-class TargetStepInput(vm: Vm, guiState: GuiState)
+class StepIncrement(vm: Vm, guiState: GuiState)
 extends TextField {
   
   columns = 5
-  text = guiState.targetStep.toString()
+  text = guiState.stepIncrement.toString()
   
   reactions += {
     case ValueChanged(_) =>
       if(text != "") {
         try {
-          guiState.targetStep = text.toInt
+          guiState.stepIncrement = text.toInt
         } catch { 
-          case _ => text = guiState.targetStep.toString()
+          case _ => text = guiState.stepIncrement.toString()
         }
       } else {
-        guiState.targetStep = 0
+        guiState.stepIncrement = 0
       }
   }
   
