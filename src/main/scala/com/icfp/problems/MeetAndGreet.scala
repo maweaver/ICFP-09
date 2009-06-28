@@ -6,6 +6,7 @@ import scala.swing.{Component, Orientation, Panel, ScrollPane, SplitPane, Table}
 import gui.MigPanel
 import util.{GraphicsUtil, ObjectTracker, Physics}
 import vm.Vm
+import org.apache.commons.math.util.MathUtils
 
 /**
  * Info about a step in the Meet and Greet Problem
@@ -72,10 +73,18 @@ extends Problem {
         targetTracker.radii.length > 0 && 
         targetTracker.angles.length > 2) 
     {
+    
       val hohmannTime = Physics.hohmannTime(satelliteTracker.positions.first, targetTracker.radii.first)
-      val targetChange = targetTracker.angles.first - targetTracker.angles.drop(1).first
-      val endAngle = (satelliteTracker.angles.first + Physics.Pi) % Physics.Pi
+      val targetChange = MathUtils.normalizeAngle((MathUtils.normalizeAngle(targetTracker.angles.first, targetTracker.angles.drop(1).first)  - targetTracker.angles.drop(1).first),Physics.Pi)
+      val endAngle = MathUtils.normalizeAngle(satelliteTracker.angles.first,Physics.Pi)
       
+      
+      println("hohmannTime = " + hohmannTime)
+      println("targetTracker.angles.first = " + targetTracker.angles.first + " targetTracker.angles.drop(1).first = " + targetTracker.angles.drop(1).first)
+      println("normalizething = " + MathUtils.normalizeAngle(targetTracker.angles.first, targetTracker.angles.drop(1).first))
+      println("targetChange = " + targetChange)
+      println("satelliteTracker.angles.first = " + satelliteTracker.angles.first)
+      println("endAngle = " + endAngle)
       println("It is predicted that if I were to do the hohmann maneuver now, my end angle would be " + endAngle + " and the target's would be " + (targetChange * hohmannTime))
       
       if(Math.abs(targetChange * hohmannTime - endAngle) < 0.01) { // Do the hohmann maneuver now
