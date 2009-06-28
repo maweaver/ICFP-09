@@ -1,6 +1,7 @@
 package com.icfp.vm
 
 import scala.collection.mutable.Map
+import util.Bits
 
 /**
  * Info on what occurred during a given step
@@ -28,7 +29,30 @@ class Trace(vm: Vm) {
         println("Input at address 0x" + Integer.toHexString(key) + " changed to " + historyItem.changedInputs(key))
     }
     
-    new Array[Byte](0)
+    var data: List[Byte] = Nil
+    data ++= 0xCA.toByte :: 0xFE.toByte :: 0xBA.toByte :: 0xBE.toByte :: Nil
+    data ++= Bits.intToByteArray(teamId).reverse
+    data ++= Bits.intToByteArray(vm.scenarioId).reverse
+    for(historyItem <- history.reverse) {
+      data ++= Bits.intToByteArray(historyItem.stepNum).reverse
+      data ++= Bits.intToByteArray(historyItem.changedInputs.keySet.size).reverse
+      for(key <- historyItem.changedInputs.keys) {
+        data ++= Bits.intToByteArray(key).reverse
+        data ++= Bits.doubleToByteArray(historyItem.changedInputs(key)).reverse
+      }
+    }
+    data ++= Bits.intToByteArray(vm.currentAddress).reverse
+    data ++= Bits.intToByteArray(0).reverse
+    
+    println("Binary data: ")
+    for(byte <- data.zipWithIndex) {
+      print(Integer.toHexString(byte._1.toInt & 0xFF) + " ")
+      if((byte._2 + 1) % 8 == 0)
+        println()
+    }
+    println()
+    
+    data.toArray
   }
   
   def processStep() {

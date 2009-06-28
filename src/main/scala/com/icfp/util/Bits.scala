@@ -16,6 +16,27 @@ object Bits {
     
     total
   }
+  
+  def intToByteArray(value: Int): Array[Byte] = 
+    (((value & 0xFF000000) >>> 24).toByte ::
+     ((value & 0x00FF0000) >>> 16).toByte ::
+     ((value & 0x0000FF00) >>> 8).toByte ::
+     ((value & 0x000000FF) >>> 0).toByte ::
+     Nil).toArray
+     
+  def longToByteArray(value: long): Array[Byte] =
+    (((value & 0xFF00000000000000l) >>> 56).toByte ::
+     ((value & 0x00FF000000000000l) >>> 48).toByte ::
+     ((value & 0x0000FF0000000000l) >>> 40).toByte ::
+     ((value & 0x000000FF00000000l) >>> 32).toByte ::
+     ((value & 0x00000000FF000000l) >>> 24).toByte ::
+     ((value & 0x0000000000FF0000l) >>> 16).toByte ::
+     ((value & 0x000000000000FF00l) >>> 8).toByte ::
+     ((value & 0x00000000000000FFl) >>> 0).toByte ::
+     Nil).toArray
+  
+  def doubleToByteArray(value: Double): Array[Byte] =
+    longToByteArray(java.lang.Double.doubleToLongBits(value))
  
   /**
    * Returns a range of bits from a larger number, based on the representation
