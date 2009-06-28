@@ -1,7 +1,8 @@
 package com.icfp.gui
 
+import java.io.FileOutputStream
 import javax.swing.ImageIcon
-import scala.swing.Action
+import scala.swing.{Action, FileChooser}
 import vm.Vm
 
 /**
@@ -72,7 +73,14 @@ extends Action("Export Trace") {
   toolTip = "Export a trace file"
   
   override def apply() {
-    vm.trace.dump()
+    val chooser = new FileChooser()
+    
+    if(chooser.showSaveDialog(guiState.component) == FileChooser.Result.Approve) {
+      val data = vm.trace.dump()
+      val output = new FileOutputStream(chooser.selectedFile)
+      output.write(data)
+      output.close()
+    }
   }
   
 }

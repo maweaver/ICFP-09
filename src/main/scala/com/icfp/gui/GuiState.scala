@@ -1,6 +1,6 @@
 package com.icfp.gui
 
-import scala.swing.Publisher
+import scala.swing.{Component, Publisher}
 import scala.swing.event.Event
 import problems.Problem
 
@@ -19,7 +19,7 @@ extends Event
 /**
  * The state of the user interface
  */
-class GuiState 
+class GuiState(val component: Component)
 extends Publisher {
   
   private var _currentProblem: Problem = Problem.all.first
@@ -46,4 +46,5 @@ extends Publisher {
     _stepIncrement = value
     publish(StepIncrementChanged(value))
   }
+  
 }

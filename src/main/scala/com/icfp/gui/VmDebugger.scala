@@ -15,7 +15,7 @@ import vm.Vm
 class VmDebugger(vm: Vm)
 extends MigPanel("", "[100%]", "[100%]") {
   
-  val guiState = new GuiState
+  val guiState = new GuiState(this)
   
   guiState.reactions += {
     case ProblemChanged(p) => 
