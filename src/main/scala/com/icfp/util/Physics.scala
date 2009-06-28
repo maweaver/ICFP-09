@@ -5,7 +5,7 @@ object Physics {
   /**
    * Pi
    */
-  val Pi = 3.14159265d
+  val Pi = 2.0d * Math.acos(0.0d)
  
   /**
    * Gravitational constant
@@ -27,14 +27,23 @@ object Physics {
    */
   def toPolar(pos: (Double, Double)): (Double, Double) = {
     val r = Math.sqrt(Math.pow(pos._1, 2.0d) + Math.pow(pos._2, 2.0d))
-    val phi = 
-      if(pos._1 == 0 && pos._2 == 0) {
-        0.0d
-      } else if(pos._1 >= 0) {
-        Math.asin(pos._2 / r)
-      } else {
-        Math.asin(pos._2 / r) + Pi
-      }
+    val x = pos._1
+    val y = pos._2
+    val phi =
+     if(x > 0 && y >= 0) {
+       Math.atan(y / x)
+     } else if(x > 0 && y < 0) {
+       Math.atan(y / x) + 2.0d * Pi
+     } else if(x < 0) {
+       Math.atan(y / x) + Pi
+     } else if(x == 0 && y > 0) {
+       Pi / 2.0d
+     } else if(x == 0 && y < 0) {
+       1.5d * Pi
+     } else {
+       0.0d
+     }
+     //val phi = Math.atan2(pos._1, pos._2)
     (r, phi)
   }
   
@@ -54,12 +63,14 @@ object Physics {
       
     val vMag = Math.sqrt(G * Me / r1) * (Math.sqrt((2 * r2) / (r1 + r2)) - 1)
     
+    println("Direction: " + (if(clockwise) "Clockwise" else "Counter-Clockwise"))
     println("G: " + G)
     println("Me: " + Me)
     println("U: " + (G * Me))
     println("Cartesian coordinate: (" + pos._1 + ", " + pos._2 + ")")
     println("Polar coordinates: (" + polars._1 + ", " + polars._2 + ")")
-    println("Target radius: " + r2)
+    println("R1: " + r1)
+    println("R2: " + r2)
     println("Direction to fire thrusters: " + dvDir)
     println("Velocity: magnitude = " + vMag + ", components are (" + (vMag * Math.cos(dvDir)) + ", " + (vMag * Math.sin(dvDir)) + ")")
 
@@ -70,9 +81,8 @@ object Physics {
    * Provides the components of velocity necessary to transfer back into a normal
    * orbit out of the elliptical Hohmann orbit
    */
-  def hohmannOut(pos: (Double, Double), r2: Double, clockwise: Boolean): (Double, Double) = {
+  def hohmannOut(r1: Double, pos: (Double, Double), r2: Double, clockwise: Boolean): (Double, Double) = {
     val polars = toPolar(pos)
-    val r1 = polars._1
     val dvDir = 
       if(clockwise) {
         polars._2 - Pi / 2.0d 
@@ -82,6 +92,17 @@ object Physics {
 
     val vMag = Math.sqrt(G * Me / r2) * (1 - Math.sqrt((2 * r1) / (r1 + r2)))
     
+    println("Direction: " + (if(clockwise) "Clockwise" else "Counter-Clockwise"))
+    println("G: " + G)
+    println("Me: " + Me)
+    println("U: " + (G * Me))
+    println("Cartesian coordinate: (" + pos._1 + ", " + pos._2 + ")")
+    println("Polar coordinates: (" + polars._1 + ", " + polars._2 + ")")
+    println("R1: " + r1)
+    println("R2: " + r2)
+    println("Direction to fire thrusters: " + dvDir)
+    println("Velocity: magnitude = " + vMag + ", components are (" + (vMag * Math.cos(dvDir)) + ", " + (vMag * Math.sin(dvDir)) + ")")
+
     (vMag * Math.cos(dvDir), vMag * Math.sin(dvDir))
   }
   

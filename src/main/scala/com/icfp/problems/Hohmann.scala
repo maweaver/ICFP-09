@@ -42,7 +42,9 @@ extends Problem {
   
   var clockwise: Option[Boolean] = None
   
-  var lastPhi: Double = -1.0d
+  var lastPhi: Option[Double] = None
+  
+  var r1: Option[Double] = None
 
   /**
    * @inheritDoc
@@ -53,22 +55,24 @@ extends Problem {
     val sy = vm.outputPorts(0x3)
     val polars = Physics.toPolar(-sx, -sy)
 
-    if(lastPhi != -1.0d) {
-      val deltaPhi = polars._2 - lastPhi
-      clockwise = Some(deltaPhi < 0)
+    if(!lastPhi.isEmpty && clockwise.isEmpty) {
+      val deltaPhi = polars._2 - lastPhi.get
+      clockwise = Some(deltaPhi > 0)
     }
 
     vm.inputPorts(0x2) = 0.0d
     vm.inputPorts(0x3) = 0.0d
     
-    println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
-    lastPhi = polars._2
+    //println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
+    lastPhi = Some(polars._2)
     
     // Go into hohmann maneuver
     if(!clockwise.isEmpty &&
       !doingHohmann && 
       targetRadius != 0.0d && 
       Math.abs(targetRadius - polars._1) > 1000) {
+        
+      r1 = Some(polars._1)
         
       val deltaVs = Physics.hohmannIn((-sx, -sy), targetRadius, clockwise.get)
       
@@ -80,10 +84,11 @@ extends Problem {
     
     // Come out of hohmann maneuver
     if(!clockwise.isEmpty &&
+      !r1.isEmpty &&
       doingHohmann &&
-      Math.abs(targetRadius - polars._1) < 100) {
+      Math.abs(targetRadius - polars._1) < 10) {
       
-      val deltaVs = Physics.hohmannOut((-sx, -sy), targetRadius, clockwise.get)
+      val deltaVs = Physics.hohmannOut(r1.get, (-sx, -sy), targetRadius, clockwise.get)
       
       println("Finishing Hohmann maneuver at time " + vm.currentStep + " using deltavs of (" + deltaVs._1 + ", " + deltaVs._2 + ")")
       vm.inputPorts(0x2) = deltaVs._1
@@ -185,6 +190,7 @@ extends Problem {
     info = Nil
     doingHohmann = false
     clockwise = None
-    lastPhi = -1.0d
+    lastPhi = None
+    r1 = None
   }
 }
