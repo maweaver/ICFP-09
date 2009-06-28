@@ -9,12 +9,12 @@ import vm.Vm
  * Drop-down for selecting the current configuration.  Available values depend
  * on the problem
  */
-class ConfigurationList(vm: Vm, problem: Problem) 
+class ConfigurationList(vm: Vm, problem: Problem, guiState: GuiState) 
 extends ComboBox(problem.configurations) {
 
   selection.reactions += {
     case SelectionChanged(_) => {
-      problem.reset()
+//      guiState.currentProblem.reset()
       setConfiguration()
     }
   }

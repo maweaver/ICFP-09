@@ -98,7 +98,7 @@ extends MigPanel("", "[100%]", "[100%]") {
    */
   def resetConfigurations() {
     configurationHolder.contents.clear
-    configurationHolder.contents += new ConfigurationList(vm, currentProblem)
+    configurationHolder.contents += new ConfigurationList(vm, currentProblem, guiState)
   }
   
 }

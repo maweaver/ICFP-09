@@ -76,7 +76,7 @@ abstract class Problem {
    */
   def reset() {
     VmReader.populateVm(vm, Thread.currentThread.getContextClassLoader.getResourceAsStream("binaries/" + binary + ".obf"))
-     control(vm.currentStep)
+    control(vm.currentStep)
   }
   
   /**
