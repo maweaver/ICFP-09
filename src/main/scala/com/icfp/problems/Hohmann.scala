@@ -114,7 +114,7 @@ extends Problem {
         GraphicsUtil.drawRadius(g, size, 6.0d * Physics.Re, lastInfo.targetRadius, Color.BLUE, false)
         
         g.setColor(Color.RED)
-        val point = GraphicsUtil.globalToLocal(size, 6.0d * Physics.Re, lastInfo.sx, lastInfo.sy)
+        val point = GraphicsUtil.globalToLocal(size, 6.0d * Physics.Re, -lastInfo.sx, -lastInfo.sy)
         g.fillOval(point._1.toInt - 2, point._2.toInt - 2, 4, 4)
       }
     }
