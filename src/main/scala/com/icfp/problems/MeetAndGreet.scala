@@ -53,7 +53,6 @@ extends Problem {
    * @inheritDoc
    */
   override def control(stepNum: Int) {
-    val targetRadius = vm.outputPorts(0x4)
     val sx = vm.outputPorts(0x2)
     val sy = vm.outputPorts(0x3)
     val sxTarget = vm.outputPorts(0x4) // sx target
@@ -65,6 +64,8 @@ extends Problem {
     vm.inputPorts(0x2) = 0.0d
     vm.inputPorts(0x3) = 0.0d
     
+    val targetRadius = targetTracker.radii.first
+    
     //println("Current radius is " + polars._1 + ", angle is " + polars._2 + ", last angle was " + lastPhi + ", distance is " + (Math.abs(targetRadius - polars._1)) + ", clockwise? " + clockwise)
     
     if(!satelliteTracker.clockwise.isEmpty &&
@@ -75,8 +76,9 @@ extends Problem {
     {
     
       val hohmannTime = Physics.hohmannTime(satelliteTracker.positions.first, targetTracker.radii.first)
-      val targetChange = MathUtils.normalizeAngle((MathUtils.normalizeAngle(targetTracker.angles.first, targetTracker.angles.drop(1).first)  - targetTracker.angles.drop(1).first),Physics.Pi)
+      val targetChange = targetTracker.angles.drop(1).first  - targetTracker.angles.first
       val endAngle = MathUtils.normalizeAngle(satelliteTracker.angles.first,Physics.Pi)
+      
       
       
       println("hohmannTime = " + hohmannTime)
@@ -85,10 +87,11 @@ extends Problem {
       println("targetChange = " + targetChange)
       println("satelliteTracker.angles.first = " + satelliteTracker.angles.first)
       println("endAngle = " + endAngle)
-      println("It is predicted that if I were to do the hohmann maneuver now, my end angle would be " + endAngle + " and the target's would be " + (targetChange * hohmannTime))
+      println("It is predicted that if I were to do the hohmann maneuver now, my end angle would be " + endAngle + " and the target's would be " + MathUtils.normalizeAngle((targetChange * hohmannTime),Physics.Pi))
       
-      if(Math.abs(targetChange * hohmannTime - endAngle) < 0.01) { // Do the hohmann maneuver now
-    
+      if((Math.abs(MathUtils.normalizeAngle((targetChange * hohmannTime),Physics.Pi) - endAngle) < 0.01) && !doingHohmann) { // Do the hohmann maneuver now
+
+
         r1 = Some(satelliteTracker.radii.first)
         
         val deltaVs = Physics.hohmannIn(satelliteTracker.positions.first, targetRadius, satelliteTracker.clockwise.get)
